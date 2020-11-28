@@ -20,10 +20,9 @@ class DetectedObject():
         self.Polygon_normalized = Polygon(xy=[(self.llc_normalized.x, self.llc_normalized.y), (self.lrc_normalized.x, self.lrc_normalized.y),
                                               (self.urc_normalized.x, self.urc_normalized.y), (self.ulc_normalized.x, self.ulc_normalized.y)],
                                           fill=False, linewidth=3, edgecolor='r')
-
         self.img = img
         img_width, img_height = self.img.size[:2]
-        self.Polygon = np.stack((self.Polygon_normalized.get_xy()[:, 0] * img_width, self.Polygon_normalized.get_xy()[:, 1]) * img_height, axis=1)
+        self.Polygon = Polygon(np.stack((self.Polygon_normalized.get_xy()[:, 0] * img_width, self.Polygon_normalized.get_xy()[:, 1] * img_height), axis=1))
         self.llc = self.Polygon.get_xy()[0]
         self.lrc = self.Polygon.get_xy()[1]
         self.urc = self.Polygon.get_xy()[2]
@@ -59,6 +58,20 @@ class DetectedObject():
         else:
             return False
 
+    def findTexts(self, texts):
+        output_text = []
+
+        for text in texts:
+            xy = [(text.bounding_poly.vertices[i].x, text.bounding_poly.vertices[i].y) for i in
+                  range(len(text.bounding_poly.vertices))]
+            poly = Polygon(xy)
+            if self.containsObject(poly):
+                output_text.append(text)
+
+        output_text = ' '.join(output_text)
+
+        return output_text
+
     def isBigger(self, other):
         if self.Polygon_area > other.Polygon_area:
             return True
@@ -89,24 +102,3 @@ def localize_objects(img_path):
     objects = client.object_localization(image=image).localized_object_annotations
 
     return objects
-
-if __name__ == "__main__":
-
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'wegli-b95e0c13796c.json'
-    SOURCE_PATH = 'imgs/'
-
-    objects = localize_objects(SOURCE_PATH + 'test_img1.jpeg')
-
-    detected_objects = []
-
-    for object_ in objects:
-        detected_objects.append(DetectedObject(object_))
-
-    cars = []
-    license_plates = []
-    
-    for object_ in detected_objects:
-        if object_.isObject('Car'):
-            cars.append(object_)
-        if object_.isObject('License Plate'):
-            license_plates.append(object_)
