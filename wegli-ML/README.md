@@ -1,6 +1,6 @@
 # Internal Endpoint for Image Analysis
 
-This endpoint will be used to start the ML related tasks. Based on the image analysis it will return suggestions for licens plate number and vehicle features.
+This endpoint will be used to start the ML related tasks. Based on the image analysis it will return suggestions for license plate number and vehicle features.
 
 ## Deploy
 
