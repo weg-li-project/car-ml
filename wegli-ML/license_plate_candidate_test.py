@@ -20,19 +20,34 @@ class TestLicensePlateCandidate(unittest.TestCase):
     def testCheckCandidateEV(self):
         text = 'B MW 1234E'
         lpc = LicensePlateCandidate(text)
-        _, res, msg = lpc.checkCandidate()
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'B MW 1234E', msg
         assert res, 'testCheckCandidateEV failed'
 
     def testCheckCandidateOT(self):
         text = 'B MW 1234H'
         lpc = LicensePlateCandidate(text)
-        _, res, msg = lpc.checkCandidate()
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'B MW 1234H', msg
         assert res, 'testCheckCandidateOT failed'
 
     def testCheckCandidateLastSignDigit(self):
         text = 'B MW 123A'
         lpc = LicensePlateCandidate(text)
         _, res, msg = lpc.checkCandidate()
+        assert not res, msg
+
+    def testCheckCandidateLastSignDigit2(self):
+        text = 'B MW 123E'
+        lpc = LicensePlateCandidate(text)
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'B MW 123E', 'testCheckCandidateLastSignDigit2 failed'
+        assert res, msg
+
+    def testCheckCandidateLastSignDigit3(self):
+        text = 'BE MW 1234E'
+        lpc = LicensePlateCandidate(text)
+        license_plate_no, res, msg = lpc.checkCandidate()
         assert not res, msg
 
     def testCheckCandidateMoreThan4Digits(self):
@@ -98,7 +113,7 @@ class TestLicensePlateCandidate(unittest.TestCase):
         assert res, msg
 
     def testCheckCandidate1Blank2(self):
-        text = 'IGBA 123'
+        text = 'IGBA 123' # there is no city IG
         lpc = LicensePlateCandidate(text)
         license_plate_no, res, msg = lpc.checkCandidate()
         assert license_plate_no == 'IGB A 123', 'testCheckCandidate1Blank2 failed'
@@ -118,11 +133,11 @@ class TestLicensePlateCandidate(unittest.TestCase):
         assert license_plate_no == 'B MW 1234', 'testCheckCandidateNoBlanks1 failed'
         assert res, msg
 
-    def testCheckCandidateNoBlanks1(self):
+    def testCheckCandidateNoBlanks2(self):
         text = 'IGBA123'
         lpc = LicensePlateCandidate(text)
         license_plate_no, res, msg = lpc.checkCandidate()
-        assert license_plate_no == 'IGB A 123', 'testCheckCandidateNoBlanks1 failed'
+        assert license_plate_no == 'IGB A 123', 'testCheckCandidateNoBlanks2 failed'
         assert res, msg
 
     def testCity_ID_exists1(self):
