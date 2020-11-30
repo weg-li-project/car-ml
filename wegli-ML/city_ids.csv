@@ -79,7 +79,6 @@ BS;Stadt Braunschweig (sonst);BraunSchweig;Niedersachsen
 BSB;Landkreis Osnabrück;BerSenBrück;Niedersachsen
 BSK;Landkreis Oder-Spree;BeeSKow;Brandenburg
 BT;Stadt Bayreuth;BayreuTh;Bayern
-;Landkreis Bayreuth;;
 BTF;Landkreis Anhalt-Bitterfeld;BitTerFeld;Sachsen-Anhalt
 BÜD;Wetteraukreis;BÜDingen;Hessen
 BUL;Landkreis Amberg-Sulzbach (B, F und G 1–999);BUrgLengenfeld;Bayern
@@ -245,7 +244,6 @@ HAL;Stadt Halle (Saale);HALle;Sachsen-Anhalt
 HAM;Stadt Hamm;HAMm;Nordrhein-Westfalen
 HAS;Landkreis Haßberge;HASsfurt;Bayern
 HB;Stadt Bremen, Senat und Bürgerschaft (sonst);Hansestadt Bremen;Bremen
-;Stadt Bremerhaven (A–Z 1000–9999);;
 HBN;Landkreis Hildburghausen;HildBurghauseN;Thüringen
 HBS;Landkreis Harz;HalBerStadt;Sachsen-Anhalt
 HC;Landkreis Mittelsachsen;HainiChen;Sachsen
@@ -379,7 +377,6 @@ M;Stadt München (AA–ZZ 100–9999)*;München;Bayern
 MA;Stadt Mannheim;MAnnheim;Baden-Württemberg
 MAB;Erzgebirgskreis;MArienBerg;Sachsen
 MAI;Landkreis Kelheim (sonst);MAInburg;Bayern
-;Landkreis Landshut (B, F, G, I, O und Q 1–9999);;
 MAK;Landkreis Wunsiedel im Fichtelgebirge;MArKtredwitz;Bayern
 MAL;Landkreis Landshut (B, F, G, I, O und Q 1–9999);MALlersdorf;Bayern
 MB;Landkreis Miesbach;MiesBach;Bayern
@@ -500,7 +497,6 @@ PCH;Landkreis Ludwigslust-Parchim;ParCHim;Mecklenburg-Vorpommern
 PE;Landkreis Peine;PEine;Niedersachsen
 PEG;Landkreis Bayreuth (B–Z 1–999);PEGnitz;Bayern
 PF;Stadt Pforzheim (AA–MZ 100–999 und NA–ZZ 100–9999)*;PForzheim;Baden-Württemberg
-;Enzkreis (sonst)*;;
 PI;Kreis Pinneberg;PInneberg;Schleswig-Holstein
 PIR;Landkreis Sächsische Schweiz-Osterzgebirge;PIRna;Sachsen
 PL;Vogtlandkreis;PLauen;Sachsen
