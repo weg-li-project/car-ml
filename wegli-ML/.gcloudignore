@@ -16,4 +16,7 @@
 .idea
 test
 
+.pytest.cache
+.coverage
+
 README.md
