@@ -8,6 +8,7 @@ class LicensePlateCandidate():
         self.text = text
         self.object_ = object_
         self.city_IDs_df = city_IDs_df
+        self.license_plate_no = ''
 
     def __city_ID_exists__(self, city_ID):
         return (self.city_IDs_df['Abk.'] == city_ID).any()
@@ -106,7 +107,7 @@ class LicensePlateCandidate():
             if len(license_plate_no) == 8:
                 min_len, max_len = 4, 5
 
-            # split license_plate_no after first occurrence of digit
+            # split license_plate_no before first occurrence of digit
             m = re.search(r"\d", license_plate_no)
             part1 = license_plate_no[:m.start()]
             part2 = license_plate_no[m.start():]
@@ -115,7 +116,7 @@ class LicensePlateCandidate():
 
             city_ID, driver_ID_letters = self.__split_part1__(part1, min_len, max_len)
 
-        # all signs after blank are digits?
+        # all signs in driver_ID_digits are digits?
         if not driver_ID_digits.isdigit():
             return license_plate_no, False, 'signs after blank are not only digits'
 
@@ -137,66 +138,71 @@ class LicensePlateCandidate():
         self.last_sign = ''
 
         # remove all blanks at the beginning and end
-        license_plate_no = self.text.strip()
+        self.license_plate_no = self.text.strip()
+
+        # check if license_plate_no is empty
+        if len(self.license_plate_no) == 0:
+            return self.license_plate_no, False, 'license_plate_no is empty'
 
         # is the last sign an 'E' (electro vehicles) or a 'H' (olt timer)
-        if license_plate_no[-1] == 'H' or license_plate_no[-1] == 'E':
-            self.last_sign = license_plate_no[-1]
-            license_plate_no = license_plate_no[:-1]
+        if self.license_plate_no[-1] == 'H' or self.license_plate_no[-1] == 'E':
+            self.last_sign = self.license_plate_no[-1]
+            self.license_plate_no = self.license_plate_no[:-1]
 
         # does the license_plate_no end with a digit?
-        if not license_plate_no[-1].isdigit():
-            return license_plate_no, False, 'license_plate_no does not end with digit after removing and is no EV or old timer'
+        if not self.license_plate_no[-1].isdigit():
+            return self.license_plate_no, False, 'license_plate_no does not end with digit after removing and is no EV or old timer'
 
         # does the license_plate_no contain 4 digits max?
-        if len(''.join(x for x in license_plate_no if x.isdigit())) > 4:
-            return license_plate_no, False, 'license_plate_no does contain more than 4 digits'
+        if len(''.join(x for x in self.license_plate_no if x.isdigit())) > 4:
+            return self.license_plate_no, False, 'license_plate_no does contain more than 4 digits'
 
-        # does the license_plate_no start with two letters?
-        if not license_plate_no[0].isalpha() and not license_plate_no[1].isalpha():
-            return license_plate_no, False, 'license_plate_no does not start with 2 letters'
+        # does the license_plate_no start with two letters # TODO: implement; whitespaces have to be removed for this test
+        # if not self.license_plate_no[0].isalpha() and not self.license_plate_no[1].isalpha():
+        #     return self.license_plate_no, False, 'license_plate_no does not start with 2 letters'
 
         # are all letters upper case?
-        if not ''.join(x for x in license_plate_no if x.isalpha()).isupper():
-            return license_plate_no, False, 'some letters are not upper case'
+        if not ''.join(x for x in self.license_plate_no if x.isalpha()).isupper():
+            return self.license_plate_no, False, 'some letters are not upper case'
 
         # does the license_plate_no contain blanks?
-        num_blanks = len(''.join(x for x in license_plate_no if x.isspace()))
+        num_blanks = len(''.join(x for x in self.license_plate_no if x.isspace()))
 
         if num_blanks >= 3:
-            return license_plate_no, False, 'license_plate_no contains more than 2 blanks after removing leading and trailing white spaces'
+            return self.license_plate_no, False, 'license_plate_no contains more than 2 blanks after removing leading and trailing white spaces'
 
         if num_blanks == 2:
 
             # does the license_plate_no has the correct length?
-            if len(license_plate_no) > 10 or len(license_plate_no) < 5:
-                return license_plate_no, False, 'license_plate_no does not have the correct length'
+            if len(self.license_plate_no + self.last_sign) > 10 or len(self.license_plate_no + self.last_sign) < 5:
+                return self.license_plate_no, False, 'license_plate_no does not have the correct length'
 
-            city_ID, driver_ID_letters, driver_ID_digits = license_plate_no.split()
+            city_ID, driver_ID_letters, driver_ID_digits = self.license_plate_no.split()
 
             # does driver_ID_letters only contain letters?
             if not driver_ID_letters.isalpha():
-                return license_plate_no, False, 'driver_ID_letters does contain digits'
+                return self.license_plate_no, False, 'driver_ID_letters does contain digits'
 
             # does driver_ID_digits only contain digits?
             if not driver_ID_digits.isdigit():
-                return license_plate_no, False, 'driver_ID_digits does not only contain digits'
+                return self.license_plate_no, False, 'driver_ID_digits does not only contain digits'
 
             # does city_ID exist in database?
-            return license_plate_no, self.__city_ID_exists__(city_ID), 'city_ID does not exist in the database'
+            self.license_plate_no = self.license_plate_no + self.last_sign
+            return self.license_plate_no, self.__city_ID_exists__(city_ID), 'city_ID does not exist in the database'
 
         if num_blanks == 1:
 
             # does the license_plate_no has the correct length?
-            if len(license_plate_no) > 10 or len(license_plate_no) < 5:
-                return license_plate_no, False, 'license_plate_no does not have the correct length'
+            if len(self.license_plate_no + self.last_sign) > 9 or len(self.license_plate_no + self.last_sign) < 4:
+                return self.license_plate_no, False, 'license_plate_no does not have the correct length'
 
-            return self.__split_1_blank__(license_plate_no)
+            return self.__split_1_blank__(self.license_plate_no)
 
         if num_blanks == 0:
 
             # does the license_plate_no has the correct length?
-            if len(license_plate_no) < 3 or len(license_plate_no) > 8:
-                return license_plate_no, False, 'license_plate_no does not have the correct length'
+            if len(self.license_plate_no + self.last_sign) > 8 or len(self.license_plate_no + self.last_sign) < 3:
+                return self.license_plate_no, False, 'license_plate_no does not have the correct length'
 
-            return self.__split_no_blanks__(license_plate_no)
+            return self.__split_no_blanks__(self.license_plate_no)

@@ -29,6 +29,15 @@ class DetectedObject():
         self.ulc = self.Polygon.get_xy()[3]
         self.Polygon_area = self.calculate_Poly_area()
 
+        self.llc_x = self.Polygon.get_xy()[0][0]
+        self.llc_y = self.Polygon.get_xy()[0][1]
+        self.lrc_x = self.Polygon.get_xy()[1][0]
+        self.lrc_y = self.Polygon.get_xy()[1][1]
+        self.urc_x = self.Polygon.get_xy()[2][0]
+        self.urc_y = self.Polygon.get_xy()[2][1]
+        self.ulc_x = self.Polygon.get_xy()[3][0]
+        self.ulc_y = self.Polygon.get_xy()[3][1]
+
     def calculate_Poly_area(self):
 
         a1 = math.dist(self.llc, self.lrc)
@@ -51,22 +60,53 @@ class DetectedObject():
         return self.name == object_name
 
     def containsObject(self, other):
-        # TODO: add tolerance
-        if self.llc.x >= other.llc.x and self.lrc.x <= other.lrc.x and self.ulc.x >= other.ulc.x and self.urc.x <= other.urc.x and self.llc.y <= other.llc.y \
-                and self.ulc.y >= other.urc.y and self.lrc.y <= other.lrc.y and self.urc.y >= other.urc.y:
+
+        if isinstance(other, DetectedObject):
+            llc_x = other.llc.x
+            llc_y = other.llc.y
+            lrc_x = other.lrc.x
+            lrc_y = other.lrc.y
+            urc_x = other.urc.x
+            urc_y = other.urc.y
+            ulc_x = other.ulc.x
+            ulc_y = other.ulc.y
+
+        elif isinstance(other, Polygon):
+            poly = other
+            llc_x = poly.get_xy()[0][0]
+            llc_y = poly.get_xy()[0][1]
+            lrc_x = poly.get_xy()[1][0]
+            lrc_y = poly.get_xy()[1][1]
+            urc_x = poly.get_xy()[2][0]
+            urc_y = poly.get_xy()[2][1]
+            ulc_x = poly.get_xy()[3][0]
+            ulc_y = poly.get_xy()[3][1]
+
+        height, width = self.img.size[:2]
+
+        # TODO: improve tolerance
+        eps_x = 0.05 * width
+        eps_y = 0.04 * height
+
+        if self.llc_x <= llc_x + eps_x and self.lrc_x >= lrc_x - eps_x and self.urc_x >= urc_x - eps_x and self.ulc_x <= ulc_x + eps_x \
+                and self.llc_y >= llc_y - eps_y and self.lrc_y >= lrc_y - eps_y and self.urc_y <= urc_y + eps_y and self.ulc_y <= ulc_y + eps_y:
             return True
         else:
             return False
 
     def findTexts(self, texts):
-        output_text = []
+        containedTexts = []
 
         for text in texts:
-            xy = [(text.bounding_poly.vertices[i].x, text.bounding_poly.vertices[i].y) for i in
-                  range(len(text.bounding_poly.vertices))]
+            xy = [(text.bounding_poly.vertices[i].x, text.bounding_poly.vertices[i].y) for i in range(len(text.bounding_poly.vertices))]
             poly = Polygon(xy)
             if self.containsObject(poly):
-                output_text.append(text)
+                containedTexts.append((text.bounding_poly.vertices[0].x, text))
+
+        # sort text list by llc.x
+        containedTexts.sort(key=lambda text: text[0])
+
+        output_text = [text[1].description for text in containedTexts]
 
         output_text = ' '.join(output_text)
 
