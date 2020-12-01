@@ -27,12 +27,7 @@ def remove_annotation_errors(license_plate_no):
 
     return license_plate_no
 
-def recognize_license_plate(img_path):
-
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'wegli-b95e0c13796c.json'
-
-    objects = localize_objects(img_path)
-    texts = text_annotation(img_path)
+def recognize_license_plate(img_path, objects, texts):
 
     cars = []
     license_plates = []
@@ -85,25 +80,21 @@ def recognize_license_plate(img_path):
         if res:
             return [license_plate_no]
 
-    else:
-        # license plate was not found in the image
+    # license plate was not found in the image
 
-        license_plate_candidates = []
-        license_plate_nos = []
+    license_plate_candidates = []
+    license_plate_nos = []
 
-        # evaluate the whole text and check for license plate candidates
-        text_list = texts[0].description.split('\n')
+    # evaluate the whole text and check for license plate candidates
+    text_list = texts[0].description.split('\n')
 
-        for text in text_list:
-            lpc = LicensePlateCandidate(text)
-            license_plate_no, res, _ = lpc.checkCandidate()
-            if res:
-                license_plate_candidates.append(lpc)
-                license_plate_nos.append(license_plate_no)
+    for text in text_list:
+        lpc = LicensePlateCandidate(text)
+        license_plate_no, res, msg = lpc.checkCandidate()
+        if res:
+            license_plate_candidates.append(lpc)
+            license_plate_nos.append(license_plate_no)
 
-        assert len(license_plate_candidates) != 0, 'no valid license_plate_canidates were found'
+    assert len(license_plate_candidates) != 0, 'no valid license_plate_canidates were found'
 
-        return license_plate_nos
-
-
-
+    return license_plate_nos # TODO: sort after license plate size
