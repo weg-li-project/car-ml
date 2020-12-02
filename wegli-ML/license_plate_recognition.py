@@ -41,49 +41,24 @@ def recognize_license_plate(img_path, objects, texts):
         if detected_object.isObject('License plate'):
             license_plates.append(detected_object)
 
-    if len(license_plates) == 1:
+    license_plate_nos = []
+
+    if len(license_plates) > 0:
         # license plate was found in the image
 
-        license_plate = license_plates[0]
-
-        # iterate over texts and find the bounding polygons that are contained by license plate
-        license_plate_text = license_plate.findTexts(texts[1:])
-
-        license_plate_text = remove_annotation_errors(license_plate_text)
-
-        lpc = LicensePlateCandidate(license_plate_text, object_=license_plate)
-
-        license_plate_no, res, msg = lpc.checkCandidate()
-
-        if res:
-            return [license_plate_no]
-
-    elif len(license_plates) > 1:
-        # multiple license plates were found in the image
-
-        # find the biggest one # TODO: maybe subject to change
-        biggest = license_plates[0]
         for license_plate in license_plates:
-            if license_plate.isBigger(biggest):
-                biggest = license_plate
-        license_plate = biggest
 
-        # iterate over texts and find the bounding polygons that are contained by license plate
-        license_plate_text = license_plate.findTexts(texts[1:])
+            # iterate over texts and find the bounding polygons that are contained by license plate
+            license_plate_text = license_plate.findTexts(texts[1:])
 
-        license_plate_text = remove_annotation_errors(license_plate_text)
+            license_plate_text = remove_annotation_errors(license_plate_text)
 
-        lpc = LicensePlateCandidate(license_plate_text, object_=license_plate)
+            lpc = LicensePlateCandidate(license_plate_text, object_=license_plate)
 
-        license_plate_no, res, msg = lpc.checkCandidate()
+            license_plate_no, res, msg = lpc.checkCandidate()
 
-        if res:
-            return [license_plate_no]
-
-    # license plate was not found in the image
-
-    license_plate_candidates = []
-    license_plate_nos = []
+            if res:
+                license_plate_nos.append(license_plate_no)
 
     # evaluate the whole text and check for license plate candidates
     text_list = texts[0].description.split('\n')
@@ -91,10 +66,10 @@ def recognize_license_plate(img_path, objects, texts):
     for text in text_list:
         lpc = LicensePlateCandidate(text)
         license_plate_no, res, msg = lpc.checkCandidate()
-        if res:
-            license_plate_candidates.append(lpc)
+        if res and not license_plate_no in license_plate_nos:
             license_plate_nos.append(license_plate_no)
 
-    assert len(license_plate_candidates) != 0, 'no valid license_plate_canidates were found'
-
-    return license_plate_nos # TODO: sort after license plate size
+    if len(license_plate_nos) > 0:
+        return license_plate_nos # TODO: sort after license plate size
+    else:
+        return ''
