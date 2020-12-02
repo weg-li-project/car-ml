@@ -112,8 +112,6 @@ class TestLicensePlateRecognition(unittest.TestCase):
             # check if img_path exists in charges_df
             if (self.charges_df['photos'] == img_path).any():
 
-                total += 1
-
                 objects = []
                 texts = []
 
@@ -130,17 +128,18 @@ class TestLicensePlateRecognition(unittest.TestCase):
                     license_plate_nos = recognize_license_plate('data/charges_Schroeder/' + img_path, objects, texts)
 
                     idx = self.charges_df.index[self.charges_df['photos'] == img_path][0]
+                    total += 1
 
                     for license_plate_no in license_plate_nos:
                         if self.charges_df['registration'][idx] == license_plate_no:
                             res += 1
                             break
+
                 except:
                     continue
 
         print('percentage: {}'.format(res / total))
         assert res / total >= 0.5, 'percentage smaller than 50%'
-
 
 if __name__ == '__main__':
     unittest.main()
