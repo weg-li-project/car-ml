@@ -66,7 +66,7 @@ class TestObjectDetection(unittest.TestCase):
         detected_object.urc = (5, 0)
         detected_object.ulc = (0, 0)
 
-        area = detected_object.calculate_Poly_area()
+        area = detected_object.__calculate_Poly_area__()
 
         assert area == 5 ** 2, 'testCalculatePolyAreaSquare failed'
 
@@ -78,9 +78,42 @@ class TestObjectDetection(unittest.TestCase):
         detected_object.urc = (6, 0)
         detected_object.ulc = (0, 0)
 
-        area = detected_object.calculate_Poly_area()
+        area = detected_object.__calculate_Poly_area__()
 
-        assert area == 4 * 6, 'testCalculatePolyAreaSquare failed'
+        assert area == 4 * 6, 'testCalculatePolyAreaRectangle failed'
+
+    def testCalculatePolyAreaTrapez(self):
+
+        detected_object = DetectedObject(self.objects[0], self.img)
+        detected_object.llc = (2, 2)
+        detected_object.lrc = (5, 2)
+        detected_object.urc = (7, 1)
+        detected_object.ulc = (1, 1)
+
+        area = detected_object.__calculate_Poly_area__()
+        assert area == 3 + 0.5 + 1, 'testCalculatePolyAreaTrapez failed'
+
+    def testCalculatePolyArea1(self):
+
+        detected_object = DetectedObject(self.objects[0], self.img)
+        detected_object.llc = (1, 4)
+        detected_object.lrc = (4, 4)
+        detected_object.urc = (4, 1)
+        detected_object.ulc = (0, 0)
+
+        area = detected_object.__calculate_Poly_area__()
+        assert area == 12, 'testCalculatePolyArea failed'
+
+    def testCalculatePolyArea2(self):
+
+        detected_object = DetectedObject(self.objects[0], self.img)
+        detected_object.llc = (11, 13)
+        detected_object.lrc = (15, 16)
+        detected_object.urc = (14, 10)
+        detected_object.ulc = (8, 9)
+
+        area = detected_object.__calculate_Poly_area__()
+        assert area == 21, 'testCalculatePolyArea failed'
 
     def testContainsObject(self):
 

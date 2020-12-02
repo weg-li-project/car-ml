@@ -18,7 +18,7 @@ class DetectedObject():
         self.Polygon_normalized = self.__compute_normalized_Poly__()
         self.Polygon = self.__compute_Poly__()
         self.ulc, self.urc, self.lrc, self.llc = self.__get_corners__()
-        self.Polygon_area = self.calculate_Poly_area()
+        self.Polygon_area = self.__calculate_Poly_area__()
 
     def __get_normalized_corners__(self):
         return self.object_.bounding_poly.normalized_vertices[0], self.object_.bounding_poly.normalized_vertices[1], \
@@ -44,21 +44,12 @@ class DetectedObject():
         img_width, img_height = self.img.size[:2]
         return Polygon(np.stack((self.Polygon_normalized.get_xy()[:, 0] * img_width, self.Polygon_normalized.get_xy()[:, 1] * img_height), axis=1))
 
-    def __distance_Point_to_Point__(self, a, b):
-        return ((b[1]-a[1])**2 + (b[0]-a[0])**2) ** 0.5
-
-    def __distance_Point_to_Line__(self, a, b, c):
-        # https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-        return abs((c[1]-b[1])*a[0] + (c[0]-b[0])*a[1] + c[0]*b[1] - c[1]*b[0]) / self.__distance_Point_to_Point__(b, c)
-
-    def __calculate_Triangle_area__(self, a, b, c):
-        h = self.__distance_Point_to_Line__(a, b, c)
-        l =  self.__distance_Point_to_Point__(b, c)
-        return h * l * 0.5
-
-    def calculate_Poly_area(self):
-        # divide the 4-corner-poly in 2 triangles and add their areas
-        return self.__calculate_Triangle_area__(self.lrc, self.ulc, self.urc) + self.__calculate_Triangle_area__(self.ulc, self.llc, self.lrc)
+    def __calculate_Poly_area__(self):
+        a = 0.0;
+        corners = [self.ulc, self.urc, self.lrc, self.llc]
+        for i in range(4):
+            a += (corners[i][1] + corners[(i+1) % 4][1]) * (corners[i][0] - corners[(i+1) % 4][0])
+        return abs(a) / 2.0
 
     def isObject(self, object_name):
         return self.name == object_name
