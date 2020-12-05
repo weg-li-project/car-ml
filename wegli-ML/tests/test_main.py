@@ -1,4 +1,3 @@
-import unittest
 from typing import List, Dict
 import pytest
 
@@ -20,7 +19,7 @@ def urls_helper(urls: List[str] = None) -> Dict[str, List[str]]:
 
 
 class TestMain:
-    @patch('main.recognize_license_plate', return_value=[])
+    @patch('main.get_license_plate_number_suggestions', return_value=[])
     @patch('main.to_json_suggestions', return_value='{}')
     def test_endpoint(self, mock_to_json: Mock, mock_alpr: Mock):
         data = urls_helper(['gs://weg-li_images/9876fgh'])

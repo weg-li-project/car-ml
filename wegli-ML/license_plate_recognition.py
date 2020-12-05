@@ -72,4 +72,4 @@ def recognize_license_plate(img_path, objects, texts):
     if len(license_plate_nos) > 0:
         return license_plate_nos # TODO: sort after license plate size
     else:
-        return ''
+        return []

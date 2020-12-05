@@ -3,7 +3,8 @@ from typing import List, Final
 from flask import Request
 from werkzeug.exceptions import UnprocessableEntity, BadRequest, MethodNotAllowed, UnsupportedMediaType
 
-from core.transform import to_json_suggestions
+from core.transforms import to_json_suggestions
+from core.annotations import get_annotations_from_gcs_uris
 from license_plate_recognition import recognize_license_plate
 
 PROP_NAME: Final = 'google_cloud_urls'
@@ -31,4 +32,13 @@ def get_image_analysis_suggestions(request: Request):
     if not google_cloud_urls or len(google_cloud_urls) < 1:
         raise UnprocessableEntity()
 
-    return to_json_suggestions(recognize_license_plate(google_cloud_urls))
+    return to_json_suggestions(license_plate_numbers=get_license_plate_number_suggestions(google_cloud_urls))
+
+
+def get_license_plate_number_suggestions(google_cloud_urls):
+    annotation_data = get_annotations_from_gcs_uris(google_cloud_urls)
+    license_plate_numbers = []
+    for image, object_annotations, text_annotations in annotation_data:
+        for license_plate_number in recognize_license_plate(image, object_annotations, text_annotations):
+            license_plate_numbers.append(license_plate_number)
+    return license_plate_numbers
