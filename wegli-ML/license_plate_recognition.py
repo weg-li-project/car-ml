@@ -60,6 +60,10 @@ def recognize_license_plate(img_path, objects, texts):
             if res:
                 license_plate_nos.append(license_plate_no)
 
+    # if no text was found
+    if len(texts) == 0:
+        return []
+
     # evaluate the whole text and check for license plate candidates
     text_list = texts[0].description.split('\n')
 

@@ -144,6 +144,24 @@ class LicensePlateCandidate():
         if len(self.license_plate_no) == 0:
             return self.license_plate_no, False, 'license_plate_no is empty'
 
+        # check if license_plate_no contains the minimal number of elements
+        if len(''.join(x for x in self.license_plate_no if not x.isspace())) < 3:
+            return self.license_plate_no, False, 'license_plate_no does not contain the minimal number of elements'
+
+        # does the license_plate_no contain at least two letters
+        s = ''.join(x for x in self.license_plate_no if not x.isdigit())
+        s = ''.join(x for x in s if not x.isspace())
+        if len(s) < 2:
+            return self.license_plate_no, False, ''
+        elif not s[0].isalpha() and s[1].isalpha():
+            return self.license_plate_no, False, 'license_plate_no does not start with 2 letters'
+
+        # check if license_plate_no contains the maximal number of letters
+        s = ''.join(x for x in self.license_plate_no if not x.isdigit())
+        s = ''.join(x for x in s if not x.isspace())
+        if len(s) > 5:
+            return self.license_plate_no, False, 'license_plate_no contains too many letters'
+
         # is the last sign an 'E' (electro vehicles) or a 'H' (olt timer)
         if self.license_plate_no[-1] == 'H' or self.license_plate_no[-1] == 'E':
             self.last_sign = self.license_plate_no[-1]
@@ -156,10 +174,6 @@ class LicensePlateCandidate():
         # does the license_plate_no contain 4 digits max?
         if len(''.join(x for x in self.license_plate_no if x.isdigit())) > 4:
             return self.license_plate_no, False, 'license_plate_no does contain more than 4 digits'
-
-        # does the license_plate_no start with two letters # TODO: implement; whitespaces have to be removed for this test
-        # if not self.license_plate_no[0].isalpha() and not self.license_plate_no[1].isalpha():
-        #     return self.license_plate_no, False, 'license_plate_no does not start with 2 letters'
 
         # are all letters upper case?
         if not ''.join(x for x in self.license_plate_no if x.isalpha()).isupper():
