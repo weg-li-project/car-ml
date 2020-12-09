@@ -171,5 +171,11 @@ class TestLicensePlateCandidate(unittest.TestCase):
         _, res, msg = lpc.checkCandidate()
         assert not lpc.__city_ID_exists__(city_ID), 'testCity_ID_exists4 failed'
 
+    def testInvalidLP(self):
+        text = 'E 6666'
+        lpc = LicensePlateCandidate(text)
+        _, res, msg = lpc.checkCandidate()
+        assert not res, 'testInvalidLP failed'
+
 if __name__ == '__main__':
     unittest.main()
