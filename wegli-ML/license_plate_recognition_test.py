@@ -1,8 +1,10 @@
 
 import unittest
 import json
+import numpy as np
 import pandas as pd
 from google.cloud.vision_v1.types.image_annotator import EntityAnnotation, LocalizedObjectAnnotation
+from termcolor import colored
 
 from license_plate_recognition import recognize_license_plate
 
@@ -101,8 +103,9 @@ class TestLicensePlateRecognition(unittest.TestCase):
         assert bool, 'testImg10 failed'
 
     def testAllImages(self):
-        res = 0
         total = 0
+        green, red, zeros = 0, 0, 0
+        res = np.zeros(shape=(self.results_api_df.shape[0],))
 
         for index, row in self.results_api_df.iterrows():
             img_path = row['filename']
@@ -123,23 +126,31 @@ class TestLicensePlateRecognition(unittest.TestCase):
                     loa = LocalizedObjectAnnotation(object_)
                     objects.append(loa)
 
-                try:
-                    warnings.simplefilter("ignore", ResourceWarning)
-                    license_plate_nos = recognize_license_plate('data/charges_Schroeder/' + img_path, objects, texts)
+                warnings.simplefilter("ignore", ResourceWarning)
 
-                    idx = self.charges_df.index[self.charges_df['photos'] == img_path][0]
-                    total += 1
+                license_plate_nos = recognize_license_plate('data/charges_Schroeder/' + img_path, objects, texts)
 
+                idx = self.charges_df.index[self.charges_df['photos'] == img_path][0]
+                total += 1
+
+                if len(license_plate_nos) == 0:
+                    print(colored('recognized license_plate_no: ' + str([]) + '\t' + self.charges_df['registration'][idx] + ' is the actual license_plate_no' + '\t' + str(red), 'red'))
+                    red += 1
+                    zeros += 1
+                else:
                     for license_plate_no in license_plate_nos:
-                        if self.charges_df['registration'][idx] == license_plate_no:
-                            res += 1
-                            break
+                        if license_plate_no == self.charges_df['registration'][idx]:
+                            print(colored(
+                                'recognized license_plate_no: ' + license_plate_no + '\t' + self.charges_df['registration'][
+                                    idx] + ' is the actual license_plate_no' + '\t' + str(green), 'green'))
+                            green += 1
+                            res[index] = 1
+                        else:
+                            print(colored('recognized license_plate_no: ' + license_plate_no + '\t' + self.charges_df['registration'][idx] + ' is the actual license_plate_no' + '\t' + str(red), 'red'))
+                            red += 1
 
-                except:
-                    continue
-
-        print('percentage: {}'.format(res / total))
-        assert res / total >= 0.5, 'percentage smaller than 50%'
+        print('percentage: {}'.format(np.sum(res) / total))
+        assert np.sum(res) / total >= 0.5, 'percentage smaller than 50%'
 
 if __name__ == '__main__':
     unittest.main()
