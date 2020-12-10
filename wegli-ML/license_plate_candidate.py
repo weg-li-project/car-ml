@@ -10,6 +10,22 @@ class LicensePlateCandidate():
         self.city_IDs_df = city_IDs_df
         self.license_plate_no = ''
 
+    def remove_annotation_errors(self, license_plate_no):
+        license_plate_no = license_plate_no.replace('&', ' ')
+        license_plate_no = license_plate_no.replace('i', ' ')
+        license_plate_no = license_plate_no.replace('.', ' ')
+        license_plate_no = license_plate_no.replace(':', ' ')
+        license_plate_no = license_plate_no.replace('-', ' ')
+        license_plate_no = license_plate_no.replace('o', ' ')
+        license_plate_no = license_plate_no.replace('ö', 'Ö')
+        license_plate_no = license_plate_no.replace('ü', 'Ü')
+        license_plate_no = license_plate_no.replace('.', ' ')
+        license_plate_no = license_plate_no.replace(';', ' ')
+        license_plate_no = license_plate_no.replace('  ', ' ')
+        # TODO: add more
+
+        return license_plate_no
+
     def __city_ID_exists__(self, city_ID):
         return (self.city_IDs_df['Abk.'] == city_ID).any()
 
@@ -137,8 +153,11 @@ class LicensePlateCandidate():
 
         self.last_sign = ''
 
+        # remove annotation errors
+        self.license_plate_no = self.remove_annotation_errors(self.text)
+
         # remove all blanks at the beginning and end
-        self.license_plate_no = self.text.strip()
+        self.license_plate_no = self.license_plate_no.strip()
 
         # check if license_plate_no is empty
         if len(self.license_plate_no) == 0:

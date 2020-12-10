@@ -19,14 +19,6 @@ def text_annotation(img_path):
     texts = response.text_annotations
     return texts
 
-def remove_annotation_errors(license_plate_no):
-    license_plate_no = license_plate_no.replace('&', ' ')
-    license_plate_no = license_plate_no.replace('i', ' ')
-    license_plate_no = license_plate_no.replace('.', ' ')
-    # TODO: add more
-
-    return license_plate_no
-
 def recognize_license_plate(img_path, objects, texts):
 
     cars = []
@@ -50,8 +42,6 @@ def recognize_license_plate(img_path, objects, texts):
 
             # iterate over texts and find the bounding polygons that are contained by license plate
             license_plate_text = license_plate.findTexts(texts[1:])
-
-            license_plate_text = remove_annotation_errors(license_plate_text)
 
             lpc = LicensePlateCandidate(license_plate_text, object_=license_plate)
 
