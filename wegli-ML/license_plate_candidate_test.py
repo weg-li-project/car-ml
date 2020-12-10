@@ -177,5 +177,33 @@ class TestLicensePlateCandidate(unittest.TestCase):
         _, res, msg = lpc.checkCandidate()
         assert not res, 'testInvalidLP failed'
 
+    def testRemoveAnd(self):
+        text = 'E &FG 6666'
+        lpc = LicensePlateCandidate(text)
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'E FG 6666', 'testRemoveAnd failed'
+        assert res, msg
+
+    def testRemoveDot(self):
+        text = 'ED.FG 6666'
+        lpc = LicensePlateCandidate(text)
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'ED FG 6666', 'testRemoveDot failed'
+        assert res, msg
+
+    def testMakeUmlautsUpper(self):
+        text = 'SüW G 123'
+        lpc = LicensePlateCandidate(text)
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'SÜW G 123', 'testMakeUmlautsUpper failed'
+        assert res, msg
+
+    def testRemoveAnnotationErrors(self):
+        text = 'SüWiG-123'
+        lpc = LicensePlateCandidate(text)
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'SÜW G 123', 'testRemoveAnnotationErrors failed'
+        assert res, msg
+
 if __name__ == '__main__':
     unittest.main()

@@ -140,14 +140,13 @@ class TestLicensePlateRecognition(unittest.TestCase):
                 else:
                     for license_plate_no in license_plate_nos:
                         if license_plate_no == self.charges_df['registration'][idx]:
-                            print(colored(
-                                'recognized license_plate_no: ' + license_plate_no + '\t' + self.charges_df['registration'][
-                                    idx] + ' is the actual license_plate_no' + '\t' + str(green), 'green'))
-                            green += 1
                             res[index] = 1
-                        else:
-                            print(colored('recognized license_plate_no: ' + license_plate_no + '\t' + self.charges_df['registration'][idx] + ' is the actual license_plate_no' + '\t' + str(red), 'red'))
+                            green += 1
+                            print(colored('recognized license_plate_no: ' + license_plate_no + '\t' + self.charges_df['registration'][idx] + ' is the actual license_plate_no' + '\t' + str(green), 'green'))
+                    if res[index] == 0:
+                        for license_plate_no in license_plate_nos:
                             red += 1
+                            print(colored('recognized license_plate_no: ' + license_plate_no + '\t' + self.charges_df['registration'][idx] + ' is the actual license_plate_no' + '\t' + str(red), 'red'))
 
         print('percentage: {}'.format(np.sum(res) / total))
         assert np.sum(res) / total >= 0.5, 'percentage smaller than 50%'
