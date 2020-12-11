@@ -1,13 +1,9 @@
 import io
-import os
 from typing import List
 
-from PIL import Image
 from google.cloud import vision
 from google.cloud.vision_v1 import AnnotateImageResponse
 from google.cloud import storage
-
-import object_detection
 
 
 def get_annotations_from_gcs_uri(uri: str):
