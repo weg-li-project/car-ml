@@ -18,7 +18,8 @@ tests
 data/testdata
 data/charges_schroeder
 
-.pytest.cache
+.pytest_cache/
 .coverage
+tests/.coverage
 
 README.md
