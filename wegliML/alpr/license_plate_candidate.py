@@ -1,10 +1,14 @@
+import os
 import re
 import pandas as pd
+
+dirname = os.path.dirname(os.path.realpath(__file__))
+file_path = os.path.join(dirname, '../data/city_ids.csv')
 
 
 class LicensePlateCandidate:
 
-    def __init__(self, text, object_ = None, city_IDs_df = pd.read_csv('../data/city_ids.csv', delimiter=';')):
+    def __init__(self, text, object_ = None, city_IDs_df = pd.read_csv(file_path, delimiter=';')):
         self.text = text
         self.object_ = object_
         self.city_IDs_df = city_IDs_df
