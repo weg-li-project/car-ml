@@ -14,7 +14,9 @@
 .gitignore
 
 .idea
-test
+tests
+data/testdata
+data/charges_schroeder
 
 .pytest.cache
 .coverage
