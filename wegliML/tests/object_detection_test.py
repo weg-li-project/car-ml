@@ -6,7 +6,7 @@ from PIL import Image
 from google.cloud.vision_v1.types.image_annotator import LocalizedObjectAnnotation, EntityAnnotation
 from matplotlib.patches import Polygon
 
-from wegliML.alpr.object_detection import DetectedObject
+from alpr.object_detection import DetectedObject
 
 
 class TestObjectDetection(unittest.TestCase):

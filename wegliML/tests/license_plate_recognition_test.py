@@ -5,7 +5,7 @@ import pandas as pd
 from google.cloud.vision_v1.types.image_annotator import EntityAnnotation, LocalizedObjectAnnotation
 from termcolor import colored
 
-from wegliML.alpr.license_plate_recognition import recognize_license_plate
+from alpr.license_plate_recognition import recognize_license_plate
 
 import warnings
 

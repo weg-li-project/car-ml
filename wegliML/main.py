@@ -3,9 +3,9 @@ from typing import List, Final
 from flask import Request
 from werkzeug.exceptions import UnprocessableEntity, BadRequest, MethodNotAllowed, UnsupportedMediaType
 
-from wegliML.core.transforms import to_json_suggestions
-from wegliML.core.annotations import get_annotations_from_gcs_uris
-from wegliML.alpr.license_plate_recognition import recognize_license_plate
+from core.transforms import to_json_suggestions
+from core.annotations import get_annotations_from_gcs_uris
+from alpr.license_plate_recognition import recognize_license_plate
 
 PROP_NAME: Final = 'google_cloud_urls'
 

@@ -19,4 +19,4 @@ To test the main entrypoint execute the following command from the tests directo
 
 To get a coverage report execute the following
 
-    pytest --disable-pytest-warnings --cov=wegliML
+    pytest --disable-pytest-warnings --cov

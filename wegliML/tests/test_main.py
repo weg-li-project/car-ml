@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 from werkzeug.exceptions import HTTPException
 
-from wegliML.main import get_image_analysis_suggestions, get_license_plate_number_suggestions
+from main import get_image_analysis_suggestions, get_license_plate_number_suggestions
 
 
 def request_helper(data=None, method: str = 'POST', headers: Dict[str, str] = None):
@@ -19,8 +19,8 @@ def urls_helper(urls: List[str] = None) -> Dict[str, List[str]]:
 
 
 class TestMain:
-    @patch('wegliML.main.get_license_plate_number_suggestions', return_value=[])
-    @patch('wegliML.main.to_json_suggestions', return_value='{}')
+    @patch('main.get_license_plate_number_suggestions', return_value=[])
+    @patch('main.to_json_suggestions', return_value='{}')
     def test_endpoint(self, mock_to_json: Mock, mock_alpr: Mock):
         data = urls_helper(['gs://weg-li_images/9876fgh'])
 
@@ -60,8 +60,8 @@ class TestMain:
         with pytest.raises(HTTPException, match='405'):
             get_image_analysis_suggestions(request_helper(method='GET'))
 
-    @patch('wegliML.main.recognize_license_plate', return_value=['SAME', 'SAME', 'SAME'])
-    @patch('wegliML.main.get_annotations_from_gcs_uris', return_value=[('', '', '')])
+    @patch('main.recognize_license_plate', return_value=['SAME', 'SAME', 'SAME'])
+    @patch('main.get_annotations_from_gcs_uris', return_value=[('', '', '')])
     def test_return_unique_license_plates(self, mock_alpr, mock_annotations):
         suggestions = get_license_plate_number_suggestions([])
 
