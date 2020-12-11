@@ -1,12 +1,10 @@
-
-import os
 import numpy as np
-import math
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from google.cloud import vision
 
-class DetectedObject():
+
+class DetectedObject:
 
     def __init__(self, object_, img):
 
@@ -126,6 +124,7 @@ class DetectedObject():
         ax.imshow(img)
         ax.add_patch(self.Polygon)
         plt.show()
+
 
 def localize_objects(img_path):
     client = vision.ImageAnnotatorClient()

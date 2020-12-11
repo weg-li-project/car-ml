@@ -1,4 +1,3 @@
-
 import unittest
 import numpy as np
 import pandas as pd
@@ -7,7 +6,8 @@ from PIL import Image
 from google.cloud.vision_v1.types.image_annotator import LocalizedObjectAnnotation, EntityAnnotation
 from matplotlib.patches import Polygon
 
-from wegliML.src.object_detection import DetectedObject
+from wegliML.alpr.object_detection import DetectedObject
+
 
 class TestObjectDetection(unittest.TestCase):
 

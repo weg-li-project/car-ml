@@ -1,7 +1,6 @@
-
 import unittest
 
-from wegliML.src.license_plate_candidate import LicensePlateCandidate
+from wegliML.alpr.license_plate_candidate import LicensePlateCandidate
 
 class TestLicensePlateCandidate(unittest.TestCase):
 

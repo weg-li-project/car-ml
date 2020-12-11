@@ -1,13 +1,9 @@
-
-import os
-import numpy as np
-import pandas as pd
 from google.cloud import vision
 from PIL import Image
-from matplotlib.patches import Polygon
 
-from wegliML.src.object_detection import DetectedObject, localize_objects
-from wegliML.src.license_plate_candidate import LicensePlateCandidate
+from wegliML.alpr.object_detection import DetectedObject, localize_objects
+from wegliML.alpr.license_plate_candidate import LicensePlateCandidate
+
 
 def text_annotation(img_path):
     client = vision.ImageAnnotatorClient()
@@ -18,6 +14,7 @@ def text_annotation(img_path):
     response = client.text_detection(image=image)
     texts = response.text_annotations
     return texts
+
 
 def recognize_license_plate(img_path, objects, texts):
 

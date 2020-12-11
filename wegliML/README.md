@@ -13,10 +13,10 @@ For being able to invoke the function publicly add the flag `--allow-unauthentic
 
 ## Testing
 
-To test the main entrypoint execute the following command from the root directory of the project
+To test the main entrypoint execute the following command from the tests directory of the project
 
-    pytest --disable-pytest-warnings tests
+    pytest --disable-pytest-warnings
 
 To get a coverage report execute the following
 
-    pytest --disable-pytest-warnings --cov=main tests
+    pytest --disable-pytest-warnings --cov=wegliML

@@ -1,4 +1,3 @@
-
 import unittest
 import json
 import numpy as np
@@ -6,9 +5,10 @@ import pandas as pd
 from google.cloud.vision_v1.types.image_annotator import EntityAnnotation, LocalizedObjectAnnotation
 from termcolor import colored
 
-from wegliML.src.license_plate_recognition import recognize_license_plate
+from wegliML.alpr.license_plate_recognition import recognize_license_plate
 
 import warnings
+
 
 class TestLicensePlateRecognition(unittest.TestCase):
 
@@ -51,17 +51,17 @@ class TestLicensePlateRecognition(unittest.TestCase):
                     bool = True
                     break
 
-            return bool
+        return bool
 
     def testImg1(self):
 
-            bool = self.__check_correct_license_plate__(0)
-            assert bool, 'testImg1 failed'
+        bool = self.__check_correct_license_plate__(0)
+        assert bool, 'testImg1 failed'
 
     def testImg2(self):
 
-            bool = self.__check_correct_license_plate__(1)
-            assert bool, 'testImg3 failed'
+        bool = self.__check_correct_license_plate__(1)
+        assert bool, 'testImg3 failed'
 
     def testImg3(self):
 
@@ -70,13 +70,13 @@ class TestLicensePlateRecognition(unittest.TestCase):
 
     def testImg4(self):
 
-            bool = self.__check_correct_license_plate__(3)
-            assert bool, 'testImg4 failed'
+        bool = self.__check_correct_license_plate__(3)
+        assert bool, 'testImg4 failed'
 
     def testImg5(self):
 
-            bool = self.__check_correct_license_plate__(4)
-            assert bool, 'testImg5 failed'
+        bool = self.__check_correct_license_plate__(4)
+        assert bool, 'testImg5 failed'
 
     def testImg6(self):
 
@@ -151,6 +151,7 @@ class TestLicensePlateRecognition(unittest.TestCase):
 
         print('percentage: {}'.format(np.sum(res) / total))
         assert np.sum(res) / total >= 0.5, 'percentage smaller than 50%'
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,8 +1,8 @@
-
 import re
 import pandas as pd
 
-class LicensePlateCandidate():
+
+class LicensePlateCandidate:
 
     def __init__(self, text, object_ = None, city_IDs_df = pd.read_csv('../data/city_ids.csv', delimiter=';')):
         self.text = text
