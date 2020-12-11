@@ -59,3 +59,12 @@ class TestMain:
     def test_wrong_method(self):
         with pytest.raises(HTTPException, match='405'):
             get_image_analysis_suggestions(request_helper(method='GET'))
+
+    @patch('wegliML.main.recognize_license_plate', return_value=['SAME', 'SAME', 'SAME'])
+    @patch('wegliML.main.get_annotations_from_gcs_uris', return_value=[('', '', '')])
+    def test_return_unique_license_plates(self, mock_alpr, mock_annotations):
+        suggestions = get_license_plate_number_suggestions([])
+
+        mock_alpr.assert_called_once()
+        mock_annotations.assert_called_once()
+        assert len(suggestions) == 1

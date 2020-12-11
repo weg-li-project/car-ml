@@ -41,4 +41,6 @@ def get_license_plate_number_suggestions(google_cloud_urls):
     for image, object_annotations, text_annotations in annotation_data:
         for license_plate_number in recognize_license_plate(image, object_annotations, text_annotations):
             license_plate_numbers.append(license_plate_number)
-    return license_plate_numbers
+    license_plate_number_set = set()
+    uniques = [x for x in license_plate_numbers if x not in license_plate_number_set and (license_plate_number_set.add(x) or True)]
+    return uniques
