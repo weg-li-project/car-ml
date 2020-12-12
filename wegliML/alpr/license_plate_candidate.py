@@ -30,10 +30,10 @@ class LicensePlateCandidate:
 
         return license_plate_no
 
-    def __city_ID_exists__(self, city_ID):
+    def _city_ID_exists(self, city_ID):
         return (self.city_IDs_df['Abk.'] == city_ID).any()
 
-    def __split_part1__(self, part1, min_len, max_len):
+    def _split_part1(self, part1, min_len, max_len):
 
         if len(part1) == 2 and min_len == 2:
             # split 1 - 1
@@ -48,7 +48,7 @@ class LicensePlateCandidate:
             driver_ID_letters = part1[1:]
 
             # does city_ID exist in database?
-            if self.__city_ID_exists__(city_ID):
+            if self._city_ID_exists(city_ID):
                 return city_ID, driver_ID_letters
             else:
                 # split 2 - 1
@@ -64,7 +64,7 @@ class LicensePlateCandidate:
             driver_ID_letters = part1[2:]
 
             # does city_ID exist in database?
-            if self.__city_ID_exists__(city_ID):
+            if self._city_ID_exists(city_ID):
                 return city_ID, driver_ID_letters
             else:
                 # split 3 - 1
@@ -80,13 +80,13 @@ class LicensePlateCandidate:
 
             return city_ID, driver_ID_letters
 
-    def __split_1_blank__(self, license_plate_no):
+    def _split_1_blank(self, license_plate_no):
 
         part1, part2 = license_plate_no.split()
 
         if part2.isdigit():
             driver_ID_digits = part2
-            city_ID, driver_ID_letters = self.__split_part1__(part1, 2, 5)
+            city_ID, driver_ID_letters = self._split_part1(part1, 2, 5)
         else:
             city_ID = part1
 
@@ -102,9 +102,9 @@ class LicensePlateCandidate:
         license_plate_no = city_ID + ' ' + driver_ID_letters + ' ' + driver_ID_digits + self.last_sign
 
         # does city_ID exist in database?
-        return license_plate_no, self.__city_ID_exists__(city_ID), 'city_ID does not exist in the database'
+        return license_plate_no, self._city_ID_exists(city_ID), 'city_ID does not exist in the database'
 
-    def __split_no_blanks__(self, license_plate_no):
+    def _split_no_blanks(self, license_plate_no):
 
         if len(license_plate_no) == 3:
 
@@ -134,7 +134,7 @@ class LicensePlateCandidate:
 
             driver_ID_digits = part2
 
-            city_ID, driver_ID_letters = self.__split_part1__(part1, min_len, max_len)
+            city_ID, driver_ID_letters = self._split_part1(part1, min_len, max_len)
 
         # all signs in driver_ID_digits are digits?
         if not driver_ID_digits.isdigit():
@@ -151,7 +151,7 @@ class LicensePlateCandidate:
         license_plate_no = city_ID + ' ' + driver_ID_letters + ' ' + driver_ID_digits + self.last_sign
 
         # does city_ID exist in database?
-        return license_plate_no, self.__city_ID_exists__(city_ID), 'city_ID does not exist in the database'
+        return license_plate_no, self._city_ID_exists(city_ID), 'city_ID does not exist in the database'
 
     def checkCandidate(self):
 
@@ -226,7 +226,7 @@ class LicensePlateCandidate:
 
             # does city_ID exist in database?
             self.license_plate_no = self.license_plate_no + self.last_sign
-            return self.license_plate_no, self.__city_ID_exists__(city_ID), 'city_ID does not exist in the database'
+            return self.license_plate_no, self._city_ID_exists(city_ID), 'city_ID does not exist in the database'
 
         if num_blanks == 1:
 
@@ -234,7 +234,7 @@ class LicensePlateCandidate:
             if len(self.license_plate_no + self.last_sign) > 9 or len(self.license_plate_no + self.last_sign) < 4:
                 return self.license_plate_no, False, 'license_plate_no does not have the correct length'
 
-            return self.__split_1_blank__(self.license_plate_no)
+            return self._split_1_blank(self.license_plate_no)
 
         if num_blanks == 0:
 
@@ -242,4 +242,4 @@ class LicensePlateCandidate:
             if len(self.license_plate_no + self.last_sign) > 8 or len(self.license_plate_no + self.last_sign) < 3:
                 return self.license_plate_no, False, 'license_plate_no does not have the correct length'
 
-            return self.__split_no_blanks__(self.license_plate_no)
+            return self._split_no_blanks(self.license_plate_no)
