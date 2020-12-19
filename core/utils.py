@@ -1,10 +1,11 @@
 
+import os
 import cv2
 import random
 import colorsys
 import numpy as np
-
-from core.license_plate_recognizer import recognize_plate
+import tensorflow as tf
+from tqdm.auto import tqdm
 
 def load_weights(model, weights_file):
     layer_size = 110
@@ -55,3 +56,30 @@ def format_boxes(bboxes, image_height, image_width):
         xmax = int(box[3] * image_width)
         box[0], box[1], box[2], box[3] = xmin, ymin, xmax, ymax
     return bboxes
+
+def get_dict():
+    keys = get_keys()
+    dict = {keys[i] : i for i in range(0, len(keys))}
+    return dict
+
+def get_keys():
+    keys = ['0','1','2','3','4','5','6','7','8','9','A', 'B', 'C', 'D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Ö','Ü']
+    return keys
+
+def load_data(img_dir):
+    imgs = []
+    labels = []
+    dict = get_dict()
+    img_subdirs = [img_dir + '/' + 'letters_' + key for key in dict.keys()]
+    for img_subdir in tqdm(img_subdirs, desc='load data'):
+        for i, file in enumerate(os.listdir(img_subdir)):
+            if file.endswith('.jpg'):
+                    labels.append(file.replace('.jpg', '')[-1])
+                    img = cv2.imread(img_subdir + '/' + file, 0)
+                    img = cv2.resize(img, dsize=(24,40))
+                    imgs.append(tf.convert_to_tensor(img))
+
+    X = np.stack(imgs)
+    y = np.asarray([(x in dict.keys() and dict[x]) for x in labels])
+
+    return X, y
