@@ -16,17 +16,46 @@ class CNN(tf.keras.models.Sequential):
     def __init__(self):
         super().__init__()
 
-    def create_model(self):
-        self.add(Conv2D(32, kernel_size=5, padding='same', activation='relu', input_shape=(40, 24, 1)))
-        self.add(MaxPool2D())
-        self.add(Conv2D(40, kernel_size=5, padding='same', activation='relu'))
-        self.add(MaxPool2D())
-        self.add(Conv2D(48, kernel_size=5, padding='same', activation='relu'))
-        self.add(MaxPool2D())
-        self.add(Flatten())
-        self.add(Dense(512, activation='relu'))
-        self.add(Dropout(0.4))
-        self.add(Dense(38, activation='softmax'))
+    def create_model(self, advanced=False):
+        if advanced == False:
+            self.add(Conv2D(32, kernel_size=5, padding='same', activation='relu', input_shape=(40, 24, 1)))
+            self.add(MaxPool2D())
+            self.add(Conv2D(40, kernel_size=5, padding='same', activation='relu'))
+            self.add(MaxPool2D())
+            self.add(Conv2D(48, kernel_size=5, padding='same', activation='relu'))
+            self.add(MaxPool2D())
+            self.add(Flatten())
+            self.add(Dense(512, activation='relu'))
+            self.add(Dropout(0.4))
+            self.add(Dense(38, activation='softmax'))
+
+        else:
+            self.add(Conv2D(32, kernel_size=3, activation='relu', input_shape=(40, 24, 1)))
+            self.add(BatchNormalization())
+            self.add(Conv2D(32, kernel_size=3, activation='relu'))
+            self.add(BatchNormalization())
+            self.add(Conv2D(32, kernel_size=5, padding='same', activation='relu'))
+            self.add(Dropout(0.4))
+
+            self.add(Conv2D(40, kernel_size=3, activation='relu'))
+            self.add(BatchNormalization())
+            self.add(Conv2D(40, kernel_size=3, activation='relu'))
+            self.add(BatchNormalization())
+            self.add(Conv2D(40, kernel_size=5, padding='same', activation='relu'))
+            self.add(Dropout(0.4))
+
+            self.add(Conv2D(48, kernel_size=3, activation='relu'))
+            self.add(BatchNormalization())
+            self.add(Conv2D(48, kernel_size=3, activation='relu'))
+            self.add(BatchNormalization())
+            self.add(Conv2D(48, kernel_size=5, padding='same', activation='relu'))
+            self.add(Dropout(0.4))
+
+            self.add(Flatten())
+            self.add(Dense(512, activation='relu'))
+            self.add(BatchNormalization())
+            self.add(Dropout(0.4))
+            self.add(Dense(38, activation='softmax'))
 
         self.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
