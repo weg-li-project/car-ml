@@ -7,7 +7,7 @@ from core.data_prep import load_data
 from absl import app, flags, logging
 from absl.flags import FLAGS
 
-flags.DEFINE_string('data_dir', 'data/letters_cleaned', 'path to input data')
+flags.DEFINE_string('data_dir', '../data/letters_cleaned', 'path to input data')
 flags.DEFINE_integer('epochs', 5, 'number of training epochs')
 flags.DEFINE_string('checkpoint_dir', None, 'path to save model')
 
@@ -80,7 +80,7 @@ def train(_argv):
     model.create_model()
 
     if FLAGS.checkpoint_dir is None:
-        checkpoint_path = "checkpoint_cnn/training/cp-{epoch:04d}.ckpt"
+        checkpoint_path = "checkpoint_cnn_advanced/training/cp-{epoch:04d}.ckpt"
         checkpoint_dir = os.path.dirname(checkpoint_path)
     else:
         latest = tf.train.latest_checkpoint(os.path.dirname(FLAGS.checkpoint_dir))
@@ -93,13 +93,22 @@ def train(_argv):
     # Create a callback that saves the model's weights
     cp_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=checkpoint_dir,
+        monitor='val_accuracy',
         verbose=1,
+        save_best_only=True,
+        mode='max',
         save_weights_only=True,
         save_freq='epoch')
 
+    # Create a callback for early stopping
+    es_callback = tf.keras.callbacks.EarlyStopping(
+        monitor='val_accuracy',
+        patience=3,
+        verbose=1)
+
     model.summary()
 
-    model.fit(train_ds, validation_data=test_ds, epochs=FLAGS.epochs, callbacks=[cp_callback])
+    model.fit(train_ds, validation_data=test_ds, epochs=FLAGS.epochs, callbacks=[cp_callback, es_callback])
 
 if __name__ == '__main__':
     try:
