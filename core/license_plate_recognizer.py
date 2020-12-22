@@ -27,7 +27,7 @@ def extract_letters(dilation, gray, thresh):
         if w < h * 0.25:
             continue
         # if width is not wide enough relative to total width then skip
-        if width / float(w) > 15:
+        if width / w > 20:
             continue
         keep_cntrs.append(cntr)
 
@@ -43,9 +43,9 @@ def extract_letters(dilation, gray, thresh):
     for cntr in contours:
         x, y, w, h = cv2.boundingRect(cntr)
         _, _, prototype_width, prototype_height = cv2.boundingRect(prototype)
-        if h >= prototype_height * 1.3:
+        if h >= prototype_height * 1.1:
             continue
-        if h <= prototype_height * 0.7:
+        if h <= prototype_height * 0.8:
             continue
         keep_cntrs.append(cntr)
 
