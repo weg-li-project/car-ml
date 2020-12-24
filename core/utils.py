@@ -7,6 +7,8 @@ import numpy as np
 import tensorflow as tf
 from tqdm.auto import tqdm
 
+from core.license_plate_recognizer import recognize_plate
+
 def load_weights(model, weights_file):
     layer_size = 110
     output_pos = [93, 101, 109]
@@ -83,3 +85,48 @@ def load_data(img_dir):
     y = np.asarray([(x in dict.keys() and dict[x]) for x in labels])
 
     return X, y
+
+def analyze_box(image, bboxes, model, info = False, show_label=True):
+    classes = ['license_plate']
+    num_classes = len(classes)
+    image_h, image_w, _ = image.shape
+    hsv_tuples = [(1.0 * x / num_classes, 1., 1.) for x in range(num_classes)]
+    colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+    colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
+
+    random.seed(0)
+    random.shuffle(colors)
+    random.seed(None)
+
+    out_boxes, out_scores, out_classes, num_boxes = bboxes
+
+    for i in range(num_boxes):
+
+        if int(out_classes[i]) < 0 or int(out_classes[i]) > num_classes: continue
+        coor = out_boxes[i]
+        fontScale = 0.5
+        score = out_scores[i]
+        class_ind = int(out_classes[i])
+        class_name = classes[class_ind]
+
+        height_ratio = int(image_h / 25)
+        plate_number = recognize_plate(image, coor, model)
+        if plate_number != None:
+            cv2.putText(image, plate_number, (int(coor[0]), int(coor[1]-height_ratio)), cv2.FONT_HERSHEY_SIMPLEX, 1.25, (255,255,0), 2)
+
+        bbox_color = colors[class_ind]
+        bbox_thick = int(0.6 * (image_h + image_w) / 600)
+        c1, c2 = (coor[0], coor[1]), (coor[2], coor[3])
+        cv2.rectangle(image, c1, c2, bbox_color, bbox_thick)
+
+        if info:
+            print("Object found: {}, Confidence: {:.2f}, BBox Coords (xmin, ymin, xmax, ymax): {}, {}, {}, {} ".format(class_name, score, coor[0], coor[1], coor[2], coor[3]))
+
+        if show_label:
+            bbox_mess = '%s: %.2f' % (class_name, score)
+            t_size = cv2.getTextSize(bbox_mess, 0, fontScale, thickness=bbox_thick // 2)[0]
+            c3 = (c1[0] + t_size[0], c1[1] - t_size[1] - 3)
+            cv2.rectangle(image, c1, (np.float32(c3[0]), np.float32(c3[1])), bbox_color, -1)
+            cv2.putText(image, bbox_mess, (c1[0], np.float32(c1[1] - 2)), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 0, 0), bbox_thick // 2, lineType=cv2.LINE_AA)
+
+    return image
