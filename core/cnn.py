@@ -3,13 +3,13 @@ import os
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, BatchNormalization
 from sklearn.model_selection import train_test_split
-from core.data_prep import load_data
+from core.utils import load_data
 from absl import app, flags, logging
 from absl.flags import FLAGS
 
 flags.DEFINE_string('data_dir', '../data/letters_cleaned', 'path to input data')
 flags.DEFINE_integer('epochs', 5, 'number of training epochs')
-flags.DEFINE_string('checkpoint_dir', None, 'path to save model')
+flags.DEFINE_string('checkpoint_dir', '../checkpoints/cnn_advanced/training', 'path to save model')
 
 class CNN(tf.keras.models.Sequential):
 
@@ -77,18 +77,14 @@ def train(_argv):
     test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(batch_size)
 
     model = CNN()
-    model.create_model()
+    model.create_model(advanced=True)
 
-    if FLAGS.checkpoint_dir is None:
-        checkpoint_path = "checkpoint_cnn_advanced/training/cp-{epoch:04d}.ckpt"
-        checkpoint_dir = os.path.dirname(checkpoint_path)
-    else:
-        latest = tf.train.latest_checkpoint(os.path.dirname(FLAGS.checkpoint_dir))
-        checkpoint_dir = FLAGS.checkpoint_dir
-        try:
-            model.load_weights(latest)
-        except:
-            print('There is no existing checkpoint')
+    latest = tf.train.latest_checkpoint(os.path.dirname(FLAGS.checkpoint_dir))
+    checkpoint_dir = FLAGS.checkpoint_dir
+    try:
+        model.load_weights(latest)
+    except:
+        print('There is no existing checkpoint')
 
     # Create a callback that saves the model's weights
     cp_callback = tf.keras.callbacks.ModelCheckpoint(
@@ -103,7 +99,7 @@ def train(_argv):
     # Create a callback for early stopping
     es_callback = tf.keras.callbacks.EarlyStopping(
         monitor='val_accuracy',
-        patience=3,
+        patience=5,
         verbose=1)
 
     model.summary()
