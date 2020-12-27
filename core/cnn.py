@@ -9,7 +9,8 @@ from absl.flags import FLAGS
 
 flags.DEFINE_string('data_dir', '../data/letters_cleaned', 'path to input data')
 flags.DEFINE_integer('epochs', 5, 'number of training epochs')
-flags.DEFINE_string('checkpoint_dir', '../checkpoints/cnn_advanced/training', 'path to save model')
+flags.DEFINE_string('checkpoint_dir', '../checkpoints/cnn/training', 'path to save model')
+flags.DEFINE_boolean('advanced', False, 'whether to use the advanced model or not')
 
 class CNN(tf.keras.models.Sequential):
 
@@ -77,7 +78,7 @@ def train(_argv):
     test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(batch_size)
 
     model = CNN()
-    model.create_model(advanced=True)
+    model.create_model(advanced=FLAGS.advanced)
 
     latest = tf.train.latest_checkpoint(os.path.dirname(FLAGS.checkpoint_dir))
     checkpoint_dir = FLAGS.checkpoint_dir
