@@ -4,8 +4,6 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.saved_model import tag_constants
 import cv2
-from absl import app, flags
-from absl.flags import FLAGS
 from PIL import Image
 from tqdm import tqdm
 
@@ -20,17 +18,11 @@ if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 def main(images, output=None, show=False, cnn_advanced=False, yolo_checkpoint='./checkpoints/yolov4', cnn_checkpoint='./checkpoints/cnn/training'):
-    from tensorflow.compat.v1 import ConfigProto
-    from tensorflow.compat.v1 import InteractiveSession
-    config = ConfigProto()
-    config.gpu_options.allow_growth = True
-    session = InteractiveSession(config=config)
-
-    # load model
+    # load yolo model
     saved_model_loaded = tf.saved_model.load(yolo_checkpoint, tags=[tag_constants.SERVING])
 
+    # load cnn model
     latest = tf.train.latest_checkpoint(os.path.dirname(cnn_checkpoint))
-
     model = CNN()
     model.create_model(cnn_advanced)
     model.load_weights(latest)
