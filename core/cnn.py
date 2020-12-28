@@ -3,11 +3,11 @@ import os
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, BatchNormalization
 from sklearn.model_selection import train_test_split
-from core.utils import load_data
+from alpr_yolo_cnn.core.utils import load_data
 from absl import app, flags, logging
 from absl.flags import FLAGS
 
-flags.DEFINE_string('data_dir', '../data/letters_cleaned', 'path to input data')
+flags.DEFINE_string('data_dir', '../../data/letters_cleaned', 'path to input data')
 flags.DEFINE_integer('epochs', 5, 'number of training epochs')
 flags.DEFINE_string('checkpoint_dir', '../checkpoints/cnn/training', 'path to save model')
 flags.DEFINE_boolean('advanced', False, 'whether to use the advanced model or not')
