@@ -5,7 +5,7 @@ import pandas as pd
 from google.cloud.vision_v1.types.image_annotator import EntityAnnotation, LocalizedObjectAnnotation
 from termcolor import colored
 
-from alpr.license_plate_recognition import recognize_license_plate
+from alpr_gcloud_vision.alpr.license_plate_recognition import recognize_license_plate
 
 import warnings
 
@@ -14,9 +14,9 @@ class TestLicensePlateRecognition(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestLicensePlateRecognition, self).__init__(*args, **kwargs)
-        self.charges_path = '../data/charges_Schroeder/'
-        self.charges_df = pd.read_csv(self.charges_path + 'charges.csv', delimiter=',')
-        self.results_api_df = pd.read_csv('../data/testdata/vision_api_results.csv', delimiter=';')
+        self.charges_path = '../../data/charges_Schroeder/'
+        self.charges_df = pd.read_csv(self.charges_path + 'charges.csv', delimiter=';')
+        self.results_api_df = pd.read_csv('../../data/testdata/vision_api_results.csv', delimiter=';')
 
     def __check_correct_license_plate__(self, i):
 

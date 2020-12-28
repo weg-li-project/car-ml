@@ -1,6 +1,6 @@
 import unittest
 
-from alpr.license_plate_candidate import LicensePlateCandidate
+from alpr_gcloud_vision.alpr.license_plate_candidate import LicensePlateCandidate
 
 class TestLicensePlateCandidate(unittest.TestCase):
 

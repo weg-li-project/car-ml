@@ -3,7 +3,7 @@ import re
 import pandas as pd
 
 dirname = os.path.dirname(os.path.realpath(__file__))
-file_path = os.path.join(dirname, '../data/city_ids.csv')
+file_path = os.path.join(dirname, '../../data/city_ids.csv')
 
 
 class LicensePlateCandidate:

@@ -6,14 +6,14 @@ from PIL import Image
 from google.cloud.vision_v1.types.image_annotator import LocalizedObjectAnnotation, EntityAnnotation
 from matplotlib.patches import Polygon
 
-from alpr.object_detection import DetectedObject
+from alpr_gcloud_vision.alpr.object_detection import DetectedObject
 
 
 class TestObjectDetection(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestObjectDetection, self).__init__(*args, **kwargs)
-        self.results_api_df = pd.read_csv('../data/testdata/vision_api_results.csv', delimiter=';')
+        self.results_api_df = pd.read_csv('../../data/testdata/vision_api_results.csv', delimiter=';')
         np.random.seed(3) # i = 664
         i = np.random.randint(self.results_api_df.shape[0])
         self.__init_objects__(i)
@@ -40,7 +40,7 @@ class TestObjectDetection(unittest.TestCase):
             self.texts.append(ea)
 
     def __init_img_path__(self, i):
-        self.img_path = '../data/charges_schroeder/' + self.results_api_df.iloc[i, :]['filename']
+        self.img_path = '../../data/charges_schroeder/' + self.results_api_df.iloc[i, :]['filename']
 
     def testDetectedObjectPolygon(self):
 

@@ -1,8 +1,8 @@
 from google.cloud import vision
 from PIL import Image
 
-from alpr.object_detection import DetectedObject, localize_objects
-from alpr.license_plate_candidate import LicensePlateCandidate
+from alpr_gcloud_vision.alpr.object_detection import DetectedObject, localize_objects
+from alpr_gcloud_vision.alpr.license_plate_candidate import LicensePlateCandidate
 
 
 def text_annotation(img_path):
