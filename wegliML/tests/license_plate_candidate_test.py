@@ -144,7 +144,7 @@ class TestLicensePlateCandidate(unittest.TestCase):
         lpc = LicensePlateCandidate(text)
         city_ID = 'B'
         _, res, msg = lpc.checkCandidate()
-        assert lpc.__city_ID_exists__(city_ID), 'testCity_ID_exists1 failed'
+        assert lpc._city_ID_exists(city_ID), 'testCity_ID_exists1 failed'
         assert res, msg
 
     def testCity_ID_exists2(self):
@@ -152,7 +152,7 @@ class TestLicensePlateCandidate(unittest.TestCase):
         lpc = LicensePlateCandidate(text)
         city_ID = 'WND'
         _, res, msg = lpc.checkCandidate()
-        assert lpc.__city_ID_exists__(city_ID), 'testCity_ID_exists2 failed'
+        assert lpc._city_ID_exists(city_ID), 'testCity_ID_exists2 failed'
         assert res, msg
 
     def testCity_ID_exists3(self):
@@ -160,7 +160,7 @@ class TestLicensePlateCandidate(unittest.TestCase):
         lpc = LicensePlateCandidate(text)
         city_ID = 'ZZZ'
         _, res, msg = lpc.checkCandidate()
-        assert not lpc.__city_ID_exists__(city_ID), 'testCity_ID_exists3 failed'
+        assert not lpc._city_ID_exists(city_ID), 'testCity_ID_exists3 failed'
         assert not res, msg
 
     def testCity_ID_exists4(self):
@@ -168,7 +168,7 @@ class TestLicensePlateCandidate(unittest.TestCase):
         lpc = LicensePlateCandidate(text)
         city_ID = 'IG'
         _, res, msg = lpc.checkCandidate()
-        assert not lpc.__city_ID_exists__(city_ID), 'testCity_ID_exists4 failed'
+        assert not lpc._city_ID_exists(city_ID), 'testCity_ID_exists4 failed'
 
     def testInvalidLP(self):
         text = 'E 6666'

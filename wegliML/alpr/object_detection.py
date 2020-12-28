@@ -12,17 +12,17 @@ class DetectedObject:
         self.confidence = object_.score
         self.object_ = object_
         self.img = img
-        self.ulc_normalized, self.urc_normalized, self.lrc_normalized, self.llc_normalized = self.__get_normalized_corners__()
-        self.Polygon_normalized = self.__compute_normalized_Poly__()
-        self.Polygon = self.__compute_Poly__()
-        self.ulc, self.urc, self.lrc, self.llc = self.__get_corners__()
-        self.Polygon_area = self.__calculate_Poly_area__()
+        self.ulc_normalized, self.urc_normalized, self.lrc_normalized, self.llc_normalized = self._get_normalized_corners()
+        self.Polygon_normalized = self._compute_normalized_Poly()
+        self.Polygon = self._compute_Poly()
+        self.ulc, self.urc, self.lrc, self.llc = self._get_corners()
+        self.Polygon_area = self._calculate_Poly_area()
 
-    def __get_normalized_corners__(self):
+    def _get_normalized_corners(self):
         return self.object_.bounding_poly.normalized_vertices[0], self.object_.bounding_poly.normalized_vertices[1], \
                self.object_.bounding_poly.normalized_vertices[2], self.object_.bounding_poly.normalized_vertices[3]
 
-    def __get_corners__(self):
+    def _get_corners(self):
         self.ulc_x = self.Polygon.get_xy()[0][0]
         self.ulc_y = self.Polygon.get_xy()[0][1]
         self.urc_x = self.Polygon.get_xy()[1][0]
@@ -33,17 +33,17 @@ class DetectedObject:
         self.llc_y = self.Polygon.get_xy()[3][1]
         return self.Polygon.get_xy()[0], self.Polygon.get_xy()[1], self.Polygon.get_xy()[2], self.Polygon.get_xy()[3]
 
-    def __compute_normalized_Poly__(self):
+    def _compute_normalized_Poly(self):
         return Polygon(xy=[(self.ulc_normalized.x, self.ulc_normalized.y), (self.urc_normalized.x, self.urc_normalized.y),
                     (self.lrc_normalized.x, self.lrc_normalized.y), (self.llc_normalized.x, self.llc_normalized.y)],
                 fill=False, linewidth=3, edgecolor='r')
 
-    def __compute_Poly__(self):
+    def _compute_Poly(self):
         img_width, img_height = self.img.size[:2]
         return Polygon(np.stack((self.Polygon_normalized.get_xy()[:, 0] * img_width, self.Polygon_normalized.get_xy()[:, 1] * img_height), axis=1))
 
-    def __calculate_Poly_area__(self):
-        a = 0.0;
+    def _calculate_Poly_area(self):
+        a = 0.0
         corners = [self.ulc, self.urc, self.lrc, self.llc]
         for i in range(4):
             a += (corners[i][1] + corners[(i+1) % 4][1]) * (corners[i][0] - corners[(i+1) % 4][0])
