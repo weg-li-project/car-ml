@@ -46,7 +46,7 @@ def _extract_contours(gray, thresh):
     for cntr in contours:
         x, y, w, h = cv2.boundingRect(cntr)
         _, _, prototype_width, prototype_height = cv2.boundingRect(prototype)
-        if h >= prototype_height * 1.1:
+        if h >= prototype_height * 1.2:
             continue
         if h <= prototype_height * 0.8:
             continue
@@ -150,10 +150,7 @@ def _warp_license_plate(img):
 
         src_pts = box.astype("float32")
         # coordinate of the points in box points after the rectangle has been straightened
-        dst_pts = np.array([[0, hr - 1],
-                            [0, 0],
-                            [wr - 1, 0],
-                            [wr - 1, hr - 1]], dtype="float32")
+        dst_pts = np.array([[0, hr - 1], [0, 0], [wr - 1, 0], [wr - 1, hr - 1]], dtype="float32")
 
         # the perspective transformation matrix
         M = cv2.getPerspectiveTransform(src_pts, dst_pts)
@@ -176,8 +173,8 @@ def recognize_box(img, coords, model):
     # separate coordinates from box
     xmin, ymin, xmax, ymax = coords
     # get the subimage that makes up the bounded region and take an additional 5 pixels on each side
-    min_width_tol = int(img_width * 0.015)
-    max_width_tol = int(img_width * 0.011)
+    min_width_tol = int(img_width * 0.007)
+    max_width_tol = int(img_width * 0.014)
     box = img[max(int(ymin) - 5, 0):min(int(ymax) + 5, img_height), max(int(xmin) - min_width_tol, 0):min(int(xmax) + max_width_tol, img_width), :]
     # set blue channel to zero to ignore blue field with euro stars and D
     # box[:,:,0] = 0
@@ -230,7 +227,7 @@ def recognize_box(img, coords, model):
             predictions = model.predict(letter_rect)
             idx, confidence = np.argmax(predictions), np.max(predictions)
 
-            if confidence >= 0.25:
+            if confidence >= 0.85:
                 key = keys[idx]
 
                 if key.isdigit():
