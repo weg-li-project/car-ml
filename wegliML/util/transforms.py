@@ -14,3 +14,10 @@ def to_json_suggestions(license_plate_numbers: List[str] = None, makes: List[str
             'model': models if models else []
         }
     }, indent=2)
+
+
+def get_uniques(seq: List[str]) -> List[str]:
+    """Order preserving function that returns only unique elements of an array.
+    """
+    uniques = set()
+    return [x for x in seq if x not in uniques and (uniques.add(x) or True)]

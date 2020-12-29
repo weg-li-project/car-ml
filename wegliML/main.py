@@ -3,7 +3,7 @@ from typing import List, Final
 from flask import Request
 from werkzeug.exceptions import UnprocessableEntity, BadRequest, MethodNotAllowed, UnsupportedMediaType
 
-from alpr_gcloud_vision.core.transforms import to_json_suggestions
+from util.transforms import to_json_suggestions
 from alpr_gcloud_vision.core.annotations import get_annotations_from_gcs_uris
 
 from util.alpr_adapter import recognize_license_plate_numbers

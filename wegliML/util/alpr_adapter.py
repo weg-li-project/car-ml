@@ -1,6 +1,7 @@
 from typing import List
 
 from pandas import np
+from util.transforms import get_uniques
 
 from alpr_gcloud_vision.alpr.license_plate_candidate import LicensePlateCandidate
 from alpr_gcloud_vision.alpr.license_plate_recognition import recognize_license_plate
@@ -28,8 +29,5 @@ def recognize_license_plate_numbers(annotation_data) -> List[str]:
                     license_plate_nos = recognize_license_plate(image, object_annotations, text_annotations)
                     plate_numbers_dict[key] = license_plate_nos
 
-    # remove duplicates
-    license_plate_numbers_set = {}
-    for l in plate_numbers_dict.values():
-        license_plate_numbers_set = license_plate_numbers_set.union(set(l))
-    return license_plate_numbers_set
+    license_plate_numbers = [lpn for lpns in plate_numbers_dict.values() for lpn in lpns]
+    return get_uniques(license_plate_numbers)
