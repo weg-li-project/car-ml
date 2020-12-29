@@ -7,13 +7,14 @@ from google.cloud.vision_v1.types.image_annotator import LocalizedObjectAnnotati
 from matplotlib.patches import Polygon
 
 from alpr_gcloud_vision.alpr.object_detection import DetectedObject
+from util.paths import vision_api_results_path, charges_schroeder_path
 
 
 class TestObjectDetection(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestObjectDetection, self).__init__(*args, **kwargs)
-        self.results_api_df = pd.read_csv('../../data/testdata/vision_api_results.csv', delimiter=';')
+        self.results_api_df = pd.read_csv(vision_api_results_path, delimiter=';')
         np.random.seed(3) # i = 664
         i = np.random.randint(self.results_api_df.shape[0])
         self.__init_objects__(i)
@@ -40,7 +41,7 @@ class TestObjectDetection(unittest.TestCase):
             self.texts.append(ea)
 
     def __init_img_path__(self, i):
-        self.img_path = '../../data/charges_schroeder/' + self.results_api_df.iloc[i, :]['filename']
+        self.img_path = charges_schroeder_path + self.results_api_df.iloc[i, :]['filename']
 
     def testDetectedObjectPolygon(self):
 
@@ -155,7 +156,7 @@ class TestObjectDetection(unittest.TestCase):
             ea = EntityAnnotation(text)
             texts.append(ea)
 
-        img_path = '../data/charges_schroeder/IMG_20190809_161740.jpg'
+        img_path = charges_schroeder_path + 'IMG_20190809_161740.jpg'
         img = Image.open(img_path)
 
         license_plate = DetectedObject(objects[2], img)
