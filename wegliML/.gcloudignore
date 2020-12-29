@@ -14,12 +14,11 @@
 .gitignore
 
 .idea
-tests
+tests/
 data/testdata
 data/charges_schroeder
 
 .pytest_cache/
 .coverage
-tests/.coverage
 
 README.md
