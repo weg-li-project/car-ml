@@ -1,0 +1,16 @@
+Dockerfile
+README.md
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.gcloudignore
+.git
+.gitignore
+.idea
+tests/
+data/testdata
+data/charges_schroeder
+.pytest_cache/
+.coverage
+venv/

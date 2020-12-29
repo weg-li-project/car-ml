@@ -20,5 +20,5 @@ data/charges_schroeder
 
 .pytest_cache/
 .coverage
-
+venv/
 README.md

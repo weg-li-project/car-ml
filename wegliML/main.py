@@ -1,12 +1,13 @@
-from typing import List, Final
+import os
+from typing import Final, List
 
-from flask import Request
-from werkzeug.exceptions import UnprocessableEntity, BadRequest, MethodNotAllowed, UnsupportedMediaType
+from flask import Flask, Request, request
+from werkzeug.exceptions import (BadRequest, MethodNotAllowed,
+                                 UnprocessableEntity, UnsupportedMediaType)
 
-from util.transforms import to_json_suggestions
 from alpr_gcloud_vision.core.annotations import get_annotations_from_gcs_uris
-
 from util.alpr_adapter import recognize_license_plate_numbers
+from util.transforms import to_json_suggestions
 
 PROP_NAME: Final = 'google_cloud_urls'
 
@@ -39,3 +40,15 @@ def get_image_analysis_suggestions(request: Request):
 def get_license_plate_number_suggestions(google_cloud_urls: List[str]):
     annotation_data = get_annotations_from_gcs_uris(google_cloud_urls)
     return recognize_license_plate_numbers(annotation_data)
+
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def index():
+    return get_image_analysis_suggestions(request)
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
