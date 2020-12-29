@@ -60,7 +60,7 @@ class TestMain:
         with pytest.raises(HTTPException, match='405'):
             get_image_analysis_suggestions(request_helper(method='GET'))
 
-    @patch('main.recognize_license_plate', return_value=['SAME', 'SAME', 'SAME'])
+    @patch('main.recognize_license_plate_numbers', return_value=[''])
     @patch('main.get_annotations_from_gcs_uris', return_value=[('', '', '')])
     def test_return_unique_license_plates(self, mock_alpr, mock_annotations):
         suggestions = get_license_plate_number_suggestions([])
