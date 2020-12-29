@@ -1,0 +1,8 @@
+*.DS_Store
+*.ipynb_checkpoints*
+*.pyc
+.coverage
+*.ipynb
+wegli-b95e0c13796c.json
+.pytest_cache/
+__pycache__/
