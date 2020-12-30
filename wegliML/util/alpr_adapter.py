@@ -11,7 +11,7 @@ from alpr_yolo_cnn.detect import main as alpr_yolo_cnn_main
 def recognize_license_plate_numbers(annotation_data) -> List[str]:
     images = [data[0] for data in annotation_data]
     plate_numbers_dict = alpr_yolo_cnn_main(images, cnn_advanced=False,
-                                            yolo_checkpoint='./alpr_gcloud_vision/checkpoints/yolov4',
+                                            yolo_checkpoint='./alpr_yolo_cnn/checkpoints/yolov4/',
                                             cnn_checkpoint='./alpr_yolo_cnn/checkpoints/cnn/training')
 
     # check if any found license plate number is a valid license plate
