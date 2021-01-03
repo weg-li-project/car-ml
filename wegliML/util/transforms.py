@@ -14,7 +14,7 @@ def to_json_suggestions(license_plate_numbers: List[str] = None, makes: List[str
             'color': colors if colors else [],
             'model': models if models else []
         }
-    }, indent=2)
+    })
 
 
 def order_by_frequency(seq: List[str]) -> List[str]:
