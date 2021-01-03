@@ -1,3 +1,4 @@
+import collections
 import json
 from typing import List
 
@@ -16,8 +17,13 @@ def to_json_suggestions(license_plate_numbers: List[str] = None, makes: List[str
     }, indent=2)
 
 
+def order_by_frequency(seq: List[str]) -> List[str]:
+    """Orders a provided list of elements by frequency."""
+    counts = collections.Counter(seq)
+    return sorted(seq, key=counts.get, reverse=True)
+
+
 def get_uniques(seq: List[str]) -> List[str]:
-    """Order preserving function that returns only unique elements of an array.
-    """
+    """Returns exclusively unique elements of a provided list and preserves the order."""
     uniques = set()
     return [x for x in seq if x not in uniques and (uniques.add(x) or True)]

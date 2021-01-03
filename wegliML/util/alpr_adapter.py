@@ -1,7 +1,7 @@
 from typing import List
 
 from pandas import np
-from util.transforms import get_uniques
+from util.transforms import order_by_frequency, get_uniques
 
 from alpr_gcloud_vision.alpr.license_plate_candidate import LicensePlateCandidate
 from alpr_gcloud_vision.alpr.license_plate_recognition import recognize_license_plate
@@ -30,4 +30,4 @@ def recognize_license_plate_numbers(annotation_data) -> List[str]:
                     plate_numbers_dict[key] = license_plate_nos
 
     license_plate_numbers = [lpn for lpns in plate_numbers_dict.values() for lpn in lpns]
-    return get_uniques(license_plate_numbers)
+    return get_uniques(order_by_frequency(license_plate_numbers))
