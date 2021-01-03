@@ -22,3 +22,4 @@ data/charges_schroeder
 .coverage
 venv/
 README.md
+.coveragerc
