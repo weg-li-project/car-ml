@@ -1,6 +1,6 @@
 from typing import List
 
-from pandas import np
+import numpy as np
 from util.transforms import order_by_frequency, get_uniques
 
 from alpr_gcloud_vision.alpr.license_plate_candidate import LicensePlateCandidate
