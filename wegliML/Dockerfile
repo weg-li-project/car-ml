@@ -2,19 +2,23 @@
 # https://hub.docker.com/_/python
 FROM python:3.8-slim
 
+ENV APP_HOME /app
+RUN mkdir -p $APP_HOME
+WORKDIR $APP_HOME
+
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
-# Copy local code to the container image.
-ENV APP_HOME /app
-WORKDIR $APP_HOME
-COPY . ./
+COPY requirements.txt ./
 
 # Install production dependencies.
 RUN pip install -r requirements.txt
 RUN pip install gunicorn
 
+# Copy local code to the container image.
+COPY . ./
+
 # Run the web service on container startup.
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 1 --timeout 0 main:app
+CMD exec gunicorn --bind :8080 --workers 1 --threads 1 --log-level error --timeout 180 main:app
