@@ -38,7 +38,7 @@ def detect_recognize_plate(model, img_path, saved_model_loaded, output=None, sho
 
     # loop through images in list and run Yolov4 model on each
     # for count, img_path in enumerate(tqdm(images)):
-    original_image = cv2.imread(img_path)
+    original_image = cv2.imdecode(np.fromstring(img_path.read(), np.uint8), 1)
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 
     image_data = cv2.resize(original_image, (input_size, input_size))
