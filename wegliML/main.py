@@ -45,7 +45,7 @@ def get_license_plate_number_suggestions(google_cloud_urls: List[str]):
 app = Flask(__name__)
 
 
-@app.route("/")
+@app.route("/", methods=["POST"])
 def index():
     return get_image_analysis_suggestions(request)
 
