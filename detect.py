@@ -1,5 +1,5 @@
-
 import os
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.saved_model import tag_constants
@@ -13,19 +13,36 @@ from alpr_yolo_cnn.core.cnn import CNN
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # comment out below line to enable tensorflow outputs
 
+LOADED_YOLO_MODEL = None
+LOADED_CNN_MODEL = None
+
+
+def load_models(yolo_model_path: str, use_cnn_advanced: bool, latest_cnn_checkpoint_path: str):
+    """Load models and preserve them in memory for subsequent calls."""
+
+    # Load YOLO model
+    global LOADED_YOLO_MODEL
+    if not LOADED_YOLO_MODEL:
+        LOADED_YOLO_MODEL = tf.saved_model.load(yolo_model_path, tags=[tag_constants.SERVING])
+
+    # Load CNN model
+    global LOADED_CNN_MODEL
+    if not LOADED_CNN_MODEL:
+        LOADED_CNN_MODEL = CNN()
+        LOADED_CNN_MODEL.create_model(use_cnn_advanced)
+        LOADED_CNN_MODEL.load_weights(latest_cnn_checkpoint_path)
+
+    return LOADED_YOLO_MODEL, LOADED_CNN_MODEL
+
+
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 def main(images, output=None, show=False, cnn_advanced=False, yolo_checkpoint='./checkpoints/yolov4', cnn_checkpoint='./checkpoints/cnn/training'):
-    # load yolo model
-    saved_model_loaded = tf.saved_model.load(yolo_checkpoint, tags=[tag_constants.SERVING])
-
-    # load cnn model
+    # Load models
     latest = tf.train.latest_checkpoint(os.path.dirname(cnn_checkpoint))
-    model = CNN()
-    model.create_model(cnn_advanced)
-    model.load_weights(latest)
+    saved_model_loaded, model = load_models(yolo_checkpoint, cnn_advanced, latest)
 
     plate_numbers_dict = {}
     for img in tqdm(images):
