@@ -10,9 +10,9 @@ from alpr_gcloud_vision.alpr.license_plate_recognition import recognize_license_
 from alpr_yolo_cnn.detect import main as alpr_yolo_cnn_main
 
 
-def recognize_license_plate_numbers(annotation_data) -> List[str]:
-    uris = [data[0] for data in annotation_data]
-    images = [data[1] for data in annotation_data]
+def recognize_license_plate_numbers(image_data) -> List[str]:
+    uris = [data[0] for data in image_data]
+    images = [data[1] for data in image_data]
     plate_numbers_dict = alpr_yolo_cnn_main(uris=uris, images=images, cnn_advanced=False,
                                             yolo_checkpoint='./alpr_yolo_cnn/checkpoints/yolov4/',
                                             cnn_checkpoint='./alpr_yolo_cnn/checkpoints/cnn/training')

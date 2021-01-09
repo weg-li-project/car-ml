@@ -1,16 +1,19 @@
 import io
-from typing import List
+import os
+from typing import List, Final
 
 from google.cloud import vision
 from google.cloud.vision_v1 import AnnotateImageResponse
 from google.cloud import storage
 
+BUCKET_NAME: Final = os.environ["WEGLI_IMAGES_BUCKET_NAME"]
+
 
 def get_image_from_gcs_uri(uri: str):
     storage_client = storage.Client()
 
-    blob: storage.blob.Blob = storage_client.bucket('weg-li_images') \
-        .get_blob(uri.replace('gs://weg-li_images/', ''))
+    blob: storage.blob.Blob = storage_client.bucket(BUCKET_NAME) \
+        .get_blob(uri.replace(f'gs://{BUCKET_NAME}/', ''))
     image_in_bytes = blob.download_as_bytes()
 
     return image_in_bytes
