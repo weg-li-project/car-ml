@@ -2,14 +2,17 @@ import unittest
 import numpy as np
 import pandas as pd
 import json
+
 from PIL import Image
 from google.cloud.vision_v1.types.image_annotator import LocalizedObjectAnnotation, EntityAnnotation
 from matplotlib.patches import Polygon
 
 from alpr_gcloud_vision.alpr.object_detection import DetectedObject
 from util.paths import vision_api_results_path, charges_schroeder_path
+from tests.skip_markers import needs_private_testdata
 
 
+@needs_private_testdata
 class TestObjectDetection(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):

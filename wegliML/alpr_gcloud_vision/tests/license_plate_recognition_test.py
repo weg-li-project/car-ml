@@ -1,17 +1,19 @@
-import unittest
 import json
+import unittest
+import warnings
+
 import numpy as np
 import pandas as pd
-from google.cloud.vision_v1.types.image_annotator import EntityAnnotation, LocalizedObjectAnnotation
+from google.cloud.vision_v1.types.image_annotator import (
+    EntityAnnotation, LocalizedObjectAnnotation)
 from termcolor import colored
 
 from alpr_gcloud_vision.alpr.license_plate_recognition import recognize_license_plate
-
-import warnings
-
+from tests.skip_markers import needs_private_testdata
 from util.paths import charges_schroeder_path, vision_api_results_path
 
 
+@needs_private_testdata
 class TestLicensePlateRecognition(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
