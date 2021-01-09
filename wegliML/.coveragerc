@@ -1,6 +1,8 @@
 [run]
 branch = True
-omit = */tests/*
+omit =
+    */tests/*
+    alpr_yolo_cnn/*
 
 [report]
-fail_under = 5
+fail_under = 25
