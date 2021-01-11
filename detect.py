@@ -47,7 +47,7 @@ def main(uris, images, output=None, show=False, cnn_advanced=False, yolo_checkpo
     saved_model_loaded, model = load_models(yolo_checkpoint, cnn_advanced, latest)
 
     plate_numbers_dict = {}
-    for index, img in tqdm(images):
+    for index, img in enumerate(tqdm(images)):
         plate_numbers_dict.update(detect_recognize_plate(model, uris[index], img, saved_model_loaded, output, show))
 
     return plate_numbers_dict
