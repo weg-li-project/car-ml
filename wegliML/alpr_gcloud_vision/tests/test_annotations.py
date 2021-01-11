@@ -27,9 +27,7 @@ class TestAnnotations:
     @patch('alpr_gcloud_vision.core.annotations.get_image_from_gcs_uri', return_value=bytes(0))
     @patch('alpr_gcloud_vision.core.annotations.vision.ImageAnnotatorClient', return_value=visionClientMock)
     def test_get_annotations_from_gcs_uri(self, mock1, mock2):
-        uri, image_in_memory, localized_object_annotations, text_annotations = get_annotations_from_gcs_uri("")
-        assert uri == ""
-        assert image_in_memory
+        localized_object_annotations, text_annotations = get_annotations_from_gcs_uri(mock_image_bytes)
         assert localized_object_annotations == []
         assert text_annotations == []
 
