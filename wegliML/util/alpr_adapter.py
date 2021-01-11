@@ -1,7 +1,7 @@
 import io
 from typing import List, Tuple
 
-from alpr_gcloud_vision.core.annotations import get_annotations_from_gcs_uri
+from alpr_gcloud_vision.core.annotations import get_annotations
 from util.transforms import order_by_frequency, get_uniques
 
 from alpr_gcloud_vision.alpr.license_plate_candidate import LicensePlateCandidate
@@ -27,7 +27,7 @@ def recognize_license_plate_numbers(image_data: List[Tuple[str, bytes]]) -> List
         if plate_numbers_dict[key] is None or plate_numbers_dict[key] == []:
             img_path = key
             image = images[uris.index(img_path)]
-            object_annotations, text_annotations = get_annotations_from_gcs_uri(image)
+            object_annotations, text_annotations = get_annotations(image)
             license_plate_nos = recognize_license_plate(io.BytesIO(image), object_annotations, text_annotations)
             plate_numbers_dict[key] = license_plate_nos
 

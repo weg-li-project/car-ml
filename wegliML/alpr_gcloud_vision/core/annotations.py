@@ -8,6 +8,13 @@ from google.cloud import storage
 BUCKET_NAME: Final = os.environ["WEGLI_IMAGES_BUCKET_NAME"]
 
 
+def get_images_from_gcs_uris(uris: List[str]) -> List[Tuple[str, bytes]]:
+    images = []
+    for uri in uris:
+        images.append((uri, get_image_from_gcs_uri(uri)))
+    return images
+
+
 def get_image_from_gcs_uri(uri: str) -> bytes:
     storage_client = storage.Client()
 
@@ -18,7 +25,7 @@ def get_image_from_gcs_uri(uri: str) -> bytes:
     return image_in_bytes
 
 
-def get_annotations_from_gcs_uri(image: bytes):
+def get_annotations(image: bytes):
     client = vision.ImageAnnotatorClient()
 
     features = [
@@ -33,10 +40,3 @@ def get_annotations_from_gcs_uri(image: bytes):
     })
 
     return response.localized_object_annotations, response.text_annotations
-
-
-def get_images_from_gcs_uris(uris: List[str]) -> List[Tuple[str, bytes]]:
-    images = []
-    for uri in uris:
-        images.append((uri, get_image_from_gcs_uri(uri)))
-    return images
