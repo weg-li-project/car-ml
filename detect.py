@@ -1,3 +1,4 @@
+import io
 import os
 
 import numpy as np
@@ -39,23 +40,25 @@ physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-def main(images, output=None, show=False, cnn_advanced=False, yolo_checkpoint='./checkpoints/yolov4', cnn_checkpoint='./checkpoints/cnn/training'):
+
+def main(uris, images, output=None, show=False, cnn_advanced=False, yolo_checkpoint='./checkpoints/yolov4', cnn_checkpoint='./checkpoints/cnn/training'):
     # Load models
     latest = tf.train.latest_checkpoint(os.path.dirname(cnn_checkpoint))
     saved_model_loaded, model = load_models(yolo_checkpoint, cnn_advanced, latest)
 
     plate_numbers_dict = {}
-    for img in tqdm(images):
-        plate_numbers_dict.update(detect_recognize_plate(model, img, saved_model_loaded, output, show))
+    for index, img in tqdm(images):
+        plate_numbers_dict.update(detect_recognize_plate(model, uris[index], img, saved_model_loaded, output, show))
 
     return plate_numbers_dict
 
-def detect_recognize_plate(model, img_path, saved_model_loaded, output=None, show=False, info=False):
+
+def detect_recognize_plate(model, img_path, image, saved_model_loaded, output=None, show=False, info=False):
     input_size = 416
 
     # loop through images in list and run Yolov4 model on each
     # for count, img_path in enumerate(tqdm(images)):
-    original_image = cv2.imdecode(np.fromstring(img_path.read(), np.uint8), 1)
+    original_image = cv2.imdecode(np.fromstring(io.BytesIO(image).read(), np.uint8), cv2.IMREAD_COLOR)
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 
     image_data = cv2.resize(original_image, (input_size, input_size))
