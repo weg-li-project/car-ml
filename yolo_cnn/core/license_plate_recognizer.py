@@ -6,7 +6,7 @@ import cv2
 import random
 import colorsys
 
-from alpr_yolo_cnn.core.utils import get_keys
+from yolo_cnn.core.utils import get_keys
 
 def _extract_contours(gray, thresh):
     letter_rects = []

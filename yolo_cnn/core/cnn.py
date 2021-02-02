@@ -3,7 +3,7 @@ import os
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, BatchNormalization
 from sklearn.model_selection import train_test_split
-from alpr_yolo_cnn.core.utils import load_data
+from yolo_cnn.core.utils import load_data
 from absl import app, flags, logging
 from absl.flags import FLAGS
 
