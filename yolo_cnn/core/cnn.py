@@ -3,7 +3,7 @@ import os
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, BatchNormalization
 from sklearn.model_selection import train_test_split
-from yolo_cnn.core.utils import load_data
+from yolo_cnn.core.utils import load_letter_data
 from absl import app, flags, logging
 from absl.flags import FLAGS
 
@@ -62,7 +62,7 @@ class CNN(tf.keras.models.Sequential):
 
 def train(_argv):
     data_dir = FLAGS.data_dir
-    X, y = load_data(data_dir)
+    X, y = load_letter_data(data_dir)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
     X_train, y_train = tf.convert_to_tensor(X_train, dtype=tf.float32), tf.convert_to_tensor(y_train, dtype=tf.float32)
     X_test, y_test = tf.convert_to_tensor(X_test, dtype=tf.float32), tf.convert_to_tensor(y_test, dtype=tf.float32)

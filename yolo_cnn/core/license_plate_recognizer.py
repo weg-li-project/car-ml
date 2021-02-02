@@ -1,12 +1,11 @@
 
-
 import numpy as np
 import tensorflow as tf
 import cv2
 import random
 import colorsys
 
-from yolo_cnn.core.utils import get_keys
+from yolo_cnn.core.utils import get_keys_alpr
 
 def _extract_contours(gray, thresh):
     letter_rects = []
@@ -212,7 +211,7 @@ def recognize_box(img, coords, model):
             # draw the rectangle
             rect = cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-        keys = get_keys()
+        keys = get_keys_alpr()
 
         license_plate = ''
         keep_contours, keep_letter_rects = [], []

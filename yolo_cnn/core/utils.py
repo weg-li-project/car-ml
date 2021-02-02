@@ -55,19 +55,19 @@ def format_boxes(bboxes, image_height, image_width):
         box[0], box[1], box[2], box[3] = xmin, ymin, xmax, ymax
     return bboxes
 
-def get_dict():
-    keys = get_keys()
+def get_dict_alpr():
+    keys = get_keys_alpr()
     dict = {keys[i] : i for i in range(0, len(keys))}
     return dict
 
-def get_keys():
+def get_keys_alpr():
     keys = ['0','1','2','3','4','5','6','7','8','9','A', 'B', 'C', 'D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Ö','Ü']
     return keys
 
-def load_data(img_dir):
+def load_letter_data(img_dir):
     imgs = []
     labels = []
-    dict = get_dict()
+    dict = get_dict_alpr()
     img_subdirs = [img_dir + '/' + 'letters_' + key for key in dict.keys()]
     for img_subdir in tqdm(img_subdirs, desc='load data'):
         for i, file in enumerate(os.listdir(img_subdir)):
