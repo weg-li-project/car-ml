@@ -6,8 +6,8 @@ from absl.flags import FLAGS
 from core.yolo import YOLO
 import core.utils as utils
 
-flags.DEFINE_string('weights', './data/yolov4.weights', 'path to weights file')
-flags.DEFINE_string('output', './checkpoints/yolov4', 'path to output')
+flags.DEFINE_string('weights', './data/yolo_lp.weights', 'path to weights file')
+flags.DEFINE_string('output', './checkpoints/yolo_lp', 'path to output')
 flags.DEFINE_integer('input_size', 416, 'define input size of export model')
 flags.DEFINE_float('score_thres', 0.2, 'define score threshold')
 

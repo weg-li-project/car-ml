@@ -13,8 +13,8 @@ def recognize_license_plate_numbers(image_data: List[Tuple[str, bytes]]) -> List
     uris = [data[0] for data in image_data]
     images = [data[1] for data in image_data]
     plate_numbers_dict = alpr_yolo_cnn_main(uris=uris, images=images, cnn_advanced=False,
-                                            yolo_checkpoint='./yolo_cnn/checkpoints/yolov4/',
-                                            cnn_checkpoint='./yolo_cnn/checkpoints/cnn/training')
+                                            yolo_checkpoint='./yolo_cnn/checkpoints/yolo_lp/',
+                                            cnn_checkpoint='./yolo_cnn/checkpoints/cnn_alpr/training')
 
     # check if any found license plate number is a valid license plate
     for key in plate_numbers_dict.keys():

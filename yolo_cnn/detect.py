@@ -41,7 +41,7 @@ if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 
-def main(uris, images, output=None, show=False, cnn_advanced=False, yolo_checkpoint='./checkpoints/yolov4', cnn_checkpoint='./checkpoints/cnn/training'):
+def main(uris, images, output=None, show=False, cnn_advanced=False, yolo_checkpoint='./checkpoints/yolo_lp', cnn_checkpoint='./checkpoints/cnn_alpr/training'):
     # Load models
     latest = tf.train.latest_checkpoint(os.path.dirname(cnn_checkpoint))
     saved_model_loaded, model = load_models(yolo_checkpoint, cnn_advanced, latest)
