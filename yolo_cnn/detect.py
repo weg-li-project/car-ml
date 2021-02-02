@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from yolo_cnn.core.utils import format_boxes
 from yolo_cnn.core.license_plate_recognizer import analyze_box
-from yolo_cnn.core.cnn import CNN
+from yolo_cnn.core.cnn_alpr import CNN
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # comment out below line to enable tensorflow outputs
 
