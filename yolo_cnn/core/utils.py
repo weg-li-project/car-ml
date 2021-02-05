@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 import tensorflow as tf
+import pandas as pd
 from tqdm.auto import tqdm
 
 def load_weights(model, weights_file):
@@ -62,6 +63,27 @@ def get_dict_alpr():
 
 def get_keys_alpr():
     keys = ['0','1','2','3','4','5','6','7','8','9','A', 'B', 'C', 'D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Ö','Ü']
+    return keys
+
+def get_dict_car_brand():
+    car_brands = pd.read_csv('car_brands.txt', delimiter=',', header=None)
+    dict = {car_brands.values[i, 0]: i for i in range(0, len(car_brands.values))}
+    return dict
+
+def get_keys_car_brand():
+    car_brands = pd.read_csv('car_brands.txt', delimiter=',', header=None)
+    keys = list(car_brands.values[:, 0])
+    return keys
+
+def get_dict_car_color():
+    car_brands = pd.read_csv('car_colors.txt', delimiter=',', header=None)
+    values = [value[0] for value in car_brands.values]
+    dict = {values[i]: i for i in range(0, len(values))}
+    return dict
+
+def get_keys_car_color():
+    car_brands = pd.read_csv('car_colors.txt', delimiter=',', header=None)
+    keys = list(car_brands.values[:, 0])
     return keys
 
 def load_letter_data(img_dir):

@@ -1,0 +1,10 @@
+black
+blue
+brown
+gold_yellow
+gray_silver
+green
+orange
+pink_purple_violet
+red
+white
