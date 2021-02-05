@@ -10,53 +10,24 @@ from absl.flags import FLAGS
 flags.DEFINE_string('data_dir', '../../data/letters_cleaned', 'path to input data')
 flags.DEFINE_integer('epochs', 5, 'number of training epochs')
 flags.DEFINE_string('checkpoint_dir', '../checkpoints/cnn_alpr/training', 'path to save model')
-flags.DEFINE_boolean('advanced', False, 'whether to use the advanced model or not')
+flags.DEFINE_integer('patience', 5, 'patience of training')
 
 class CNN(tf.keras.models.Sequential):
 
     def __init__(self):
         super().__init__()
 
-    def create_model(self, advanced=False):
-        if advanced == False:
-            self.add(Conv2D(32, kernel_size=5, padding='same', activation='relu', input_shape=(40, 24, 1)))
-            self.add(MaxPool2D())
-            self.add(Conv2D(40, kernel_size=5, padding='same', activation='relu'))
-            self.add(MaxPool2D())
-            self.add(Conv2D(48, kernel_size=5, padding='same', activation='relu'))
-            self.add(MaxPool2D())
-            self.add(Flatten())
-            self.add(Dense(512, activation='relu'))
-            self.add(Dropout(0.4))
-            self.add(Dense(38, activation='softmax'))
-
-        else:
-            self.add(Conv2D(32, kernel_size=3, activation='relu', input_shape=(40, 24, 1)))
-            self.add(BatchNormalization())
-            self.add(Conv2D(32, kernel_size=3, activation='relu'))
-            self.add(BatchNormalization())
-            self.add(Conv2D(32, kernel_size=5, padding='same', activation='relu'))
-            self.add(Dropout(0.4))
-
-            self.add(Conv2D(40, kernel_size=3, activation='relu'))
-            self.add(BatchNormalization())
-            self.add(Conv2D(40, kernel_size=3, activation='relu'))
-            self.add(BatchNormalization())
-            self.add(Conv2D(40, kernel_size=5, padding='same', activation='relu'))
-            self.add(Dropout(0.4))
-
-            self.add(Conv2D(48, kernel_size=3, activation='relu'))
-            self.add(BatchNormalization())
-            self.add(Conv2D(48, kernel_size=3, activation='relu'))
-            self.add(BatchNormalization())
-            self.add(Conv2D(48, kernel_size=5, padding='same', activation='relu'))
-            self.add(Dropout(0.4))
-
-            self.add(Flatten())
-            self.add(Dense(512, activation='relu'))
-            self.add(BatchNormalization())
-            self.add(Dropout(0.4))
-            self.add(Dense(38, activation='softmax'))
+    def create_model(self):
+        self.add(Conv2D(32, kernel_size=5, padding='same', activation='relu', input_shape=(40, 24, 1)))
+        self.add(MaxPool2D())
+        self.add(Conv2D(40, kernel_size=5, padding='same', activation='relu'))
+        self.add(MaxPool2D())
+        self.add(Conv2D(48, kernel_size=5, padding='same', activation='relu'))
+        self.add(MaxPool2D())
+        self.add(Flatten())
+        self.add(Dense(512, activation='relu'))
+        self.add(Dropout(0.4))
+        self.add(Dense(38, activation='softmax'))
 
         self.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
@@ -78,7 +49,7 @@ def train(_argv):
     test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(batch_size)
 
     model = CNN()
-    model.create_model(advanced=FLAGS.advanced)
+    model.create_model()
 
     latest = tf.train.latest_checkpoint(os.path.dirname(FLAGS.checkpoint_dir))
     checkpoint_dir = FLAGS.checkpoint_dir
