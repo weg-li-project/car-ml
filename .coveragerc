@@ -2,7 +2,7 @@
 branch = True
 omit =
     */tests/*
-    alpr_yolo_cnn/*
+    yolo_cnn/*
 
 [report]
 fail_under = 25
