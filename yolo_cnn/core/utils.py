@@ -1,10 +1,12 @@
-
 import os
 import cv2
 import numpy as np
 import tensorflow as tf
 import pandas as pd
 from tqdm.auto import tqdm
+
+from util.paths import car_brands_filepath, car_colors_filepath
+
 
 def load_weights(model, weights_file):
     layer_size = 110
@@ -66,23 +68,23 @@ def get_keys_alpr():
     return keys
 
 def get_dict_car_brand():
-    car_brands = pd.read_csv('car_brands.txt', delimiter=',', header=None)
+    car_brands = pd.read_csv(car_brands_filepath, delimiter=',', header=None)
     dict = {car_brands.values[i, 0]: i for i in range(0, len(car_brands.values))}
     return dict
 
 def get_keys_car_brand():
-    car_brands = pd.read_csv('car_brands.txt', delimiter=',', header=None)
+    car_brands = pd.read_csv(car_brands_filepath, delimiter=',', header=None)
     keys = list(car_brands.values[:, 0])
     return keys
 
 def get_dict_car_color():
-    car_brands = pd.read_csv('car_colors.txt', delimiter=',', header=None)
+    car_brands = pd.read_csv(car_colors_filepath, delimiter=',', header=None)
     values = [value[0] for value in car_brands.values]
     dict = {values[i]: i for i in range(0, len(values))}
     return dict
 
 def get_keys_car_color():
-    car_brands = pd.read_csv('car_colors.txt', delimiter=',', header=None)
+    car_brands = pd.read_csv(car_colors_filepath, delimiter=',', header=None)
     keys = list(car_brands.values[:, 0])
     return keys
 

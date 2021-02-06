@@ -11,6 +11,8 @@ from yolo_cnn.core.recognizer import analyze_box
 from yolo_cnn.core.cnn import CNN as CNN_alpr
 from yolo_cnn.core.cnn_resnet152 import resnet152_model
 
+from util.paths import yolo_lp_model_path, yolo_car_model_path, cnn_alpr_model_path, cnn_color_rec_model_path, cnn_car_rec_model_path
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # comment out below line to enable tensorflow outputs
 
 yolo_lp = None
@@ -18,6 +20,7 @@ yolo_car = None
 cnn_alpr = None
 cnn_color_rec = None
 cnn_car_rec = None
+
 
 def load_models(yolo_lp_model_path: str, yolo_car_model_path: str, cnn_alpr_checkpoint_path: str, cnn_color_rec_checkpoint_path: str, cnn_car_rec_checkpoint_path: str):
     """Load models and preserve them in memory for subsequent calls."""
@@ -53,9 +56,11 @@ def load_models(yolo_lp_model_path: str, yolo_car_model_path: str, cnn_alpr_chec
 
     return yolo_lp, yolo_car, cnn_alpr, cnn_color_rec, cnn_car_rec
 
+
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 
 def detect_object(image, yolo):
     input_size = 416
@@ -94,18 +99,21 @@ def detect_object(image, yolo):
 
     return original_image, pred_bbox
 
+
 def detect_recognize_plate(cnn_alpr, cnn_car_rec, cnn_color_rec, img_path, image, yolo, info=False):
     original_image, pred_bbox = detect_object(image, yolo)
     image, recognized_plate_numbers = analyze_box(original_image, pred_bbox, cnn_alpr, cnn_car_rec, cnn_color_rec, info)
     plate_numbers_dict = {img_path: recognized_plate_numbers}
     return plate_numbers_dict
 
+
 def detect_recognize_car(cnn_alpr, cnn_car_rec, cnn_color_rec, img_path, image, yolo, info=False):
     original_image, pred_bbox = detect_object(image, yolo)
     image, (car_brands, car_colors) = analyze_box(original_image, pred_bbox, cnn_alpr, cnn_car_rec, cnn_color_rec, info)
     return car_brands, car_colors
 
-def main(uris, images, yolo_lp='./checkpoints/yolo_lp', yolo_car='./checkpoints/yolo_car', cnn_alpr='./checkpoints/cnn_alpr/training', cnn_color_rec='./checkpoints/cnn_color_rec/training', cnn_car_rec='./checkpoints/cnn_car_rec/training'):
+
+def main(uris, images, yolo_lp=yolo_lp_model_path, yolo_car=yolo_car_model_path, cnn_alpr=cnn_alpr_model_path, cnn_color_rec=cnn_color_rec_model_path, cnn_car_rec=cnn_car_rec_model_path):
     # Load models
     cnn_alpr = tf.train.latest_checkpoint(os.path.dirname(cnn_alpr))
     cnn_color_rec = tf.train.latest_checkpoint(os.path.dirname(cnn_color_rec))

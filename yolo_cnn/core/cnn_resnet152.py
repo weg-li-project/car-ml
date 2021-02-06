@@ -6,6 +6,9 @@ from tensorflow.keras import initializers as initializations
 from tensorflow.keras import backend as K
 from tensorflow.keras import Model
 
+from util.paths import resnet_weights_filepath
+
+
 class Scale(tf.keras.layers.Layer):
     '''Learns a set of weights and biases used for scaling the input data.
     the output consists simply in an element-wise multiplication of the input
@@ -181,7 +184,7 @@ def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None):
 
     model = Model(img_input, x_fc)
 
-    model.load_weights('checkpoints/resnet152_weights_tf.h5', by_name=True)
+    model.load_weights(resnet_weights_filepath, by_name=True)
 
     # Truncate and replace softmax layer for transfer learning
     # Cannot use model.layers.pop() since model is not of Sequential() type

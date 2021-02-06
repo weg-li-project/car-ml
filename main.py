@@ -6,7 +6,7 @@ from werkzeug.exceptions import (BadRequest, MethodNotAllowed,
                                  UnprocessableEntity, UnsupportedMediaType)
 
 from alpr_gcloud_vision.core.annotations import get_images_from_gcs_uris
-from util.alpr_adapter import recognize_license_plate_numbers
+from util.adapter import detect_car_attributes
 from util.transforms import to_json_suggestions
 
 PROP_NAME: Final = 'google_cloud_urls'
@@ -34,12 +34,13 @@ def get_image_analysis_suggestions(request: Request):
     if not google_cloud_urls or len(google_cloud_urls) < 1:
         raise UnprocessableEntity()
 
-    return to_json_suggestions(license_plate_numbers=get_license_plate_number_suggestions(google_cloud_urls))
-
-
-def get_license_plate_number_suggestions(google_cloud_urls: List[str]):
     image_data = get_images_from_gcs_uris(google_cloud_urls)
-    return recognize_license_plate_numbers(image_data)
+    lpns, makes, colors = detect_car_attributes(image_data)
+    return to_json_suggestions(
+        license_plate_numbers=lpns,
+        makes=makes,
+        colors=colors
+    )
 
 
 app = Flask(__name__)
