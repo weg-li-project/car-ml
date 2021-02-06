@@ -1,4 +1,6 @@
 # CarML Service
+![CI](https://github.com/weg-li-project/car-ml/workflows/CI/badge.svg?branch=main&event=push)
+
 Turns images of cars into suggestions for license plate number, make and color.
 
 ## Setup

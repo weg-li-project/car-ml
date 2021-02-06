@@ -1,0 +1,54 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      id: cache
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/test-requirements.txt') }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r test-requirements.txt
+    - name: Test with pytest
+      run: pytest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if:
+      github.ref == 'refs/heads/main' && needs.build.result == 'success'
+    steps:
+    - name: Login to GCP
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        export_default_credentials: true
+    - uses: actions/checkout@v2
+    - name: Copy ML model data
+      run: gsutil -m cp -r gs://${{ secrets.SERVICE_BUCKET_NAME }}/checkpoints ./data
+    - name: Submit new container build
+      run: >
+        gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/image-analysis
+        --gcs-source-staging-dir=gs://${{ secrets.SERVICE_BUCKET_NAME }}/source
+    - name: Deploy to GCP
+      run: >
+        gcloud run deploy image-analysis --image=gcr.io/${{ secrets.GCP_PROJECT_ID }}/image-analysis
+        --allow-unauthenticated
+        --region=europe-west3
+        --platform=managed
+        --memory=4G
+        --set-env-vars=WEGLI_IMAGES_BUCKET_NAME=${{ secrets.WEGLI_IMAGES_BUCKET_NAME }}
