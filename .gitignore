@@ -1,9 +1,23 @@
+# Apple related
 *.DS_Store
+__MACOSX/
+
+# IDE related
+.idea/
+
+# Python Notebook related
 *.ipynb_checkpoints*
+*.ipynb
+
+# Testing related
 *.pyc
 .coverage
-*.ipynb
-wegli-b95e0c13796c.json
-*/.pytest_cache/
-*/__pycache__/
+.pytest_cache/
+__pycache__/
+
+# Environment related
 venv/
+wegli-b95e0c13796c.json
+
+# ML models
+checkpoints/

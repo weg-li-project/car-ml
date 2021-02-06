@@ -5,7 +5,7 @@ import cv2
 import random
 import colorsys
 
-from yolo_cnn.core.utils import get_keys_alpr
+from yolo_cnn.core.utils import get_keys_alpr, get_keys_car_brand, get_keys_car_color
 
 def _extract_contours(gray, thresh):
     letter_rects = []
@@ -167,7 +167,7 @@ def _warp_license_plate(img):
         # if contour with license plate is not found -> return original image, but in gray
         return gray
 
-def recognize_box(img, coords, model):
+def _recognize_lp_box(img, coords, cnn_alpr):
     img_height, img_width = img.shape[:2]
     # separate coordinates from box
     xmin, ymin, xmax, ymax = coords
@@ -223,7 +223,7 @@ def recognize_box(img, coords, model):
             letter_rect = letter_rect / 255.0
             letter_rect = letter_rect[tf.newaxis, ..., tf.newaxis]
 
-            predictions = model.predict(letter_rect)
+            predictions = cnn_alpr.predict(letter_rect)
             idx, confidence = np.argmax(predictions), np.max(predictions)
 
             if confidence >= 0.85:
@@ -257,8 +257,32 @@ def recognize_box(img, coords, model):
     else:
         return ''
 
-def analyze_box(image, bboxes, model, info=False, show_label=True):
-    classes = ['license_plate']
+def _recognize_car_box(img, coords, cnn_car_rec, cnn_color_rec):
+    img_height, img_width = img.shape[:2]
+    xmin, ymin, xmax, ymax = coords
+    min_width_tol = int(img_width * 0.007)
+    max_width_tol = int(img_width * 0.014)
+    box = img[max(int(ymin) - 5, 0):min(int(ymax) + 5, img_height), max(int(xmin) - min_width_tol, 0):min(int(xmax) + max_width_tol, img_width), :]
+    box = cv2.resize(box, (224, 224))
+    box_tensor = tf.convert_to_tensor(box)
+    box_tensor = box[tf.newaxis, :, :, :]
+
+    predictions = cnn_car_rec.predict(box_tensor)
+    idx, confidence = np.argmax(predictions), np.max(predictions)
+    keys = get_keys_car_brand()
+    car_brand = keys[idx]
+    print(car_brand)
+
+    predictions = cnn_color_rec.predict(box_tensor)
+    idx, confidence = np.argmax(predictions), np.max(predictions)
+    keys = get_keys_car_color()
+    car_color = keys[idx]
+    print(car_color)
+
+    return car_brand, car_color
+
+def analyze_box(image, bboxes, cnn_alpr, cnn_car_rec, cnn_color_rec, info=False):
+    classes = ['license_plate', 'car', 'truck']
     num_classes = len(classes)
     image_h, image_w, _ = image.shape
     hsv_tuples = [(1.0 * x / num_classes, 1., 1.) for x in range(num_classes)]
@@ -271,37 +295,30 @@ def analyze_box(image, bboxes, model, info=False, show_label=True):
 
     out_boxes, out_scores, out_classes, num_boxes = bboxes
 
-    plate_numbers = []
+    plate_numbers, car_brands, car_colors = [], [], []
 
     for i in range(num_boxes):
 
         if int(out_classes[i]) < 0 or int(out_classes[i]) > num_classes:
             continue
         coor = out_boxes[i]
-        fontScale = 0.5
         score = out_scores[i]
         class_ind = int(out_classes[i])
         class_name = classes[class_ind]
 
-        height_ratio = int(image_h / 25)
-        plate_number = recognize_box(image, coor, model)
-        plate_numbers.append(plate_number)
-        if plate_number != None:
-            cv2.putText(image, plate_number, (int(coor[0]), int(coor[1] - height_ratio)), cv2.FONT_HERSHEY_SIMPLEX, 1.25, (255, 255, 0), 2)
-
-        bbox_color = colors[class_ind]
-        bbox_thick = int(0.6 * (image_h + image_w) / 600)
-        c1, c2 = (coor[0], coor[1]), (coor[2], coor[3])
-        cv2.rectangle(image, c1, c2, bbox_color, bbox_thick)
-
         if info:
             print("Object found: {}, Confidence: {:.2f}, BBox Coords (xmin, ymin, xmax, ymax): {}, {}, {}, {} ".format(class_name, score, coor[0], coor[1], coor[2], coor[3]))
 
-        if show_label:
-            bbox_mess = '%s: %.2f' % (class_name, score)
-            t_size = cv2.getTextSize(bbox_mess, 0, fontScale, thickness=bbox_thick // 2)[0]
-            c3 = (c1[0] + t_size[0], c1[1] - t_size[1] - 3)
-            cv2.rectangle(image, c1, (np.float32(c3[0]), np.float32(c3[1])), bbox_color, -1)
-            cv2.putText(image, bbox_mess, (c1[0], np.float32(c1[1] - 2)), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 0, 0), bbox_thick // 2, lineType=cv2.LINE_AA)
+        if class_name == 'license_plate':
+            plate_number = _recognize_lp_box(image, coor, cnn_alpr)
+            plate_numbers.append(plate_number)
+            return image, plate_numbers
 
-    return image, plate_numbers
+        elif class_name == 'car' or class_name == 'truck':
+            car_brand, car_color = _recognize_car_box(image, coor, cnn_car_rec, cnn_color_rec)
+            car_brands.append(car_brand)
+            car_colors.append(car_color)
+            return image, (car_brands, car_colors)
+
+        else:
+            return image, None

@@ -1,16 +1,9 @@
 
 import os
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, BatchNormalization
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout
 from sklearn.model_selection import train_test_split
 from yolo_cnn.core.utils import load_letter_data
-from absl import app, flags, logging
-from absl.flags import FLAGS
-
-flags.DEFINE_string('data_dir', '../../data/letters_cleaned', 'path to input data')
-flags.DEFINE_integer('epochs', 5, 'number of training epochs')
-flags.DEFINE_string('checkpoint_dir', '../checkpoints/cnn_alpr/training', 'path to save model')
-flags.DEFINE_integer('patience', 5, 'patience of training')
 
 class CNN(tf.keras.models.Sequential):
 
@@ -31,8 +24,8 @@ class CNN(tf.keras.models.Sequential):
 
         self.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-def train(_argv):
-    data_dir = FLAGS.data_dir
+def train(data_dir, checkpoint_dir, epochs=5, patience=5):
+    data_dir = data_dir
     X, y = load_letter_data(data_dir)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
     X_train, y_train = tf.convert_to_tensor(X_train, dtype=tf.float32), tf.convert_to_tensor(y_train, dtype=tf.float32)
@@ -51,8 +44,8 @@ def train(_argv):
     model = CNN()
     model.create_model()
 
-    latest = tf.train.latest_checkpoint(os.path.dirname(FLAGS.checkpoint_dir))
-    checkpoint_dir = FLAGS.checkpoint_dir
+    latest = tf.train.latest_checkpoint(os.path.dirname(checkpoint_dir))
+    checkpoint_dir = checkpoint_dir
     try:
         model.load_weights(latest)
     except:
@@ -76,11 +69,4 @@ def train(_argv):
 
     model.summary()
 
-    model.fit(train_ds, validation_data=test_ds, epochs=FLAGS.epochs, callbacks=[cp_callback, es_callback])
-
-if __name__ == '__main__':
-    try:
-        app.run(train)
-    except SystemExit:
-        pass
-
+    model.fit(train_ds, validation_data=test_ds, epochs=epochs, callbacks=[cp_callback, es_callback])
