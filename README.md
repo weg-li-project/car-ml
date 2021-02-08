@@ -83,8 +83,7 @@ Response Body
     "suggestions": {
         "license_plate_number": ["...", "etc."],
         "color": ["...", "etc."],
-        "make": ["...", "etc."],
-        "model": ["...", "etc."]
+        "make": ["...", "etc."]
     }
 }
 ```
