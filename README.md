@@ -1,15 +1,12 @@
-# CarML Service
+# weg-li CarML Service
 ![CI](https://github.com/weg-li-project/car-ml/workflows/CI/badge.svg?branch=main&event=push)
 
 Turns images of cars into suggestions for license plate number, make and color.
 
 ## Setup
-Describes how to prepare the local environment to be able to test and deploy this service.
+Guide on how to setup the different environments for running and deploying the CarML service.
 
 ### Prerequisites
-Describe how to prepare your environments.
-
-Locally do the following
 1. Install or use Python 3.8
 1. Clone this repository
 1. Install (test-)requirements 
@@ -17,45 +14,50 @@ Locally do the following
         pip install -r requirements.txt
         pip install -r test-requirements.txt
     
-1. Google Cloud SDK installed with access to gcloud
+1. Download the ML models from https://tubcloud.tu-berlin.de/s/Q8brqAmdNdiXpcg
+and extract checkpoints folder into the data directory
+1. Install Google Cloud SDK
 
-In your GCP Console do the following
-1. Google Cloud Project with Billing activated
-1. Activate the following Google APIs
-    * Cloud Build
-    * Cloud Run
-1. Create a Service Account with the following Roles in Google IAM
+### Google Cloud
+1. Create a Google Cloud Project with Billing activated
+1. Enable the following Google APIs
+    * Cloud Build API
+    * Cloud Run API
+1. Create a service account key in IAM with the following roles
     * Editor
-1. Create the following Buckets or make sure they exist in Google Cloud Storage
-    * Bucket for images
-    * Bucket for models
-1. Copy ML model data into bucket for models
-    
-    gsutil -m cp -r ./data/checkpoints gs://${{ SERVICE_BUCKET_NAME }}
 
-In your Github repository add the following secrets to your repo for CI
-* WEGLI_IMAGES_BUCKET_NAME - Name of the bucket where your user images are stored
-* SERVICE_BUCKET_NAME - Name of the bucket where the ML model data is stored
-* GCP_PROJECT_ID - Project ID of the Google Cloud project
-* GCP_SERVICE_ACCOUNT_KEY - Content of a json service account key with all required permissions (See Deployment)
+### Google Cloud Storage
+1. Create the following buckets or make sure they exist in Cloud Storage
+    * Bucket for images
+    * Bucket for ML models
+1. Copy ML model data into bucket for ML models
+    
+        gsutil -m cp -r ./data/checkpoints gs://${{ SERVICE_BUCKET_NAME }}
+
+### CI/CD
+1. In your Github repository settings add the following secrets
+  * WEGLI_IMAGES_BUCKET_NAME - Name of the bucket where your user images are stored
+  * SERVICE_BUCKET_NAME - Name of the bucket where the ML model data is stored
+  * GCP_PROJECT_ID - Project ID of the Google Cloud project
+  * GCP_SERVICE_ACCOUNT_KEY - Content of a json service account key with all required permissions
 
 ### Deployment
-Describes how to manually and locally deploy this service.
+Make sure you noted every needed environment variable.
 
-If using the GCloud Console and having the necessary rights to Cloud Storage (read), Container Registry (write) and Cloud Run (write),
-invoke the following:
+Authenticate with Google Cloud
+and make sure your account has the necessary rights to 
+Cloud Storage (read), Container Registry (write) 
+and Cloud Run (write)
 
-First get the model data by running in the root directory
+    gcloud auth login
 
-    gsutil -m cp -r gs://${{ SERVICE_BUCKET_NAME }}/checkpoints ./data
-    
-Then run the following two commands
+Use gcloud in the terminal and invoke the following:
 
-    gcloud builds submit --tag gcr.io/${{ GCP_PROJECT_ID }}/image-analysis  missing flags
+    gcloud builds submit --tag gcr.io/${{ GCP_PROJECT_ID }}/image-analysis --gcs-source-staging-dir=gs://${{ SERVICE_BUCKET_NAME }}/source
     gcloud run deploy image-analysis --image gcr.io/${{ GCP_PROJECT_ID }}/image-analysis --no-allow-unauthenticated --region=europe-west3 --memory=4G --platform=managed
 
 ### Misc
-To run the service locally, just set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` with the path to a service account file that covers all needed roles and any further needed ones and run the following command in the root directory
+For running the service locally, just set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` with the path to a service account file that covers all needed roles and run the following command in the root directory
 
     python main.py
     
@@ -83,8 +85,15 @@ Response Body
     "suggestions": {
         "license_plate_number": ["...", "etc."],
         "color": ["...", "etc."],
-        "make": ["...", "etc."],
-        "model": ["...", "etc."]
+        "make": ["...", "etc."]
     }
 }
-```
+```  
+  
+## Contributing
+This software is developed for free. You are welcome to contribute and support, here are a few ways:
+- Report bugs, make suggestions and new ideas
+- Fork the project and do pull requests
+
+## License
+TBD
