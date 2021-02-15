@@ -30,5 +30,7 @@ jobs:
           export_default_credentials: true
       - name: Copy charges
         run: gsutil -m cp -r gs://${{ secrets.SERVICE_BUCKET_NAME }}/charges_schroeder ./data
+      - name: Copy models
+        run: gsutil -m cp -r gs://${{ secrets.SERVICE_BUCKET_NAME }}/checkpoints ./data
       - name: Test performance of car attributes detection
         run: pytest ./tests/test_performance.py
