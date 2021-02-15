@@ -7,6 +7,7 @@ data_path = os.path.join(root_path, 'data/')
 city_ids_path = os.path.join(data_path, 'city_ids.csv')
 
 charges_schroeder_path = os.path.join(data_path, 'charges_schroeder/')
+charges_csv_filepath = os.path.join(charges_schroeder_path, 'charges.csv')
 
 checkpoints_path = os.path.join(data_path, 'checkpoints/')
 resnet_weights_filepath = os.path.join(checkpoints_path, 'resnet152_weights_tf.h5')
