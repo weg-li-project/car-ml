@@ -65,7 +65,7 @@ if len(physical_devices) > 0:
 def detect_object(image, yolo):
     input_size = 416
 
-    original_image = cv2.imdecode(np.fromstring(io.BytesIO(image).read(), np.uint8), cv2.IMREAD_COLOR)
+    original_image = cv2.imdecode(np.frombuffer(io.BytesIO(image).read(), np.uint8), cv2.IMREAD_COLOR)
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 
     image_data = cv2.resize(original_image, (input_size, input_size))
