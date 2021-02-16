@@ -271,13 +271,11 @@ def _recognize_car_box(img, coords, cnn_car_rec, cnn_color_rec):
     idx, confidence = np.argmax(predictions), np.max(predictions)
     keys = get_keys_car_brand()
     car_brand = keys[idx]
-    print(car_brand)
 
     predictions = cnn_color_rec.predict(box_tensor)
     idx, confidence = np.argmax(predictions), np.max(predictions)
     keys = get_keys_car_color()
     car_color = keys[idx]
-    print(car_color)
 
     return car_brand, car_color
 
