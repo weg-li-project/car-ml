@@ -12,7 +12,7 @@ from util.paths import (
     yolo_car_model_path,
     yolo_lp_model_path,
 )
-from util.transforms import get_uniques
+from util.transforms import get_uniques, order_by_frequency
 from yolo_cnn.detect import detect_recognize_car, detect_recognize_plate, load_models
 
 
@@ -53,6 +53,7 @@ class TestPerformance(unittest.TestCase):
         correct_colors = 0
         for image_path, license_plate_number, make, color in charges:
             with open(image_path, "rb") as image:
+                filename = image_path.split('/')[-1]
                 img = bytearray(image.read())
                 try:
                     (car_brands, car_colors) = detect_recognize_car(
@@ -69,42 +70,42 @@ class TestPerformance(unittest.TestCase):
                     license_plate_arr = [
                         lpn for lpns in license_plate_dict.values() for lpn in lpns
                     ]
-                    license_plate_numbers = get_uniques(license_plate_arr)
+                    license_plate_numbers = get_uniques(order_by_frequency(license_plate_arr))
 
                     if license_plate_number in license_plate_numbers[:3]:
                         correct_license_plate_numbers += 1
                     else:
                         print(
-                            f"Incorrect lpn - Detected: {license_plate_numbers[:3]}, Actual: {license_plate_number}"
+                            f"Incorrect lpn for {filename}; Detected: {license_plate_numbers[:3]} - Actual: {license_plate_number}"
                         )
 
                     if make in car_brands[:3]:
                         correct_makes += 1
                     else:
                         print(
-                            f"Incorrect make - Detected: {car_brands[:3]}, Actual: {make}"
+                            f"Incorrect make for {filename}; Detected: {car_brands[:3]} - Actual: {make}"
                         )
 
                     if color in car_colors[:3]:
                         correct_colors += 1
                     else:
                         print(
-                            f"Incorrect color - Detected: {car_colors[:3]}, Actual: {color}"
+                            f"Incorrect color for {filename}; Detected: {car_colors[:3]} - Actual: {color}"
                         )
 
                 except Exception as err:
-                    print(f"{image_path}: {err}")
+                    print(f"Error for {filename}; Message: {err}")
 
         num_charges = len(charges)
 
         precision_license_plate_numbers = correct_license_plate_numbers / num_charges
-        print(f"LPNs precision: {precision_license_plate_numbers}")
+        print(f"First three LPN detection precision: {precision_license_plate_numbers}")
 
         precision_makes = correct_makes / num_charges
-        print(f"Makes precision: {precision_makes}")
+        print(f"First three make detection precision: {precision_makes}")
 
         precision_colors = correct_colors / num_charges
-        print(f"Colors precision: {precision_colors}")
+        print(f"First three color detection precision: {precision_colors}")
 
         self.assertTrue(precision_license_plate_numbers > 0.70)
         self.assertTrue(precision_makes > 0.85)
