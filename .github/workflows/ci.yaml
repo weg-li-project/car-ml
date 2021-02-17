@@ -50,5 +50,5 @@ jobs:
         --allow-unauthenticated
         --region=europe-west3
         --platform=managed
-        --memory=4G
+        --memory=8G
         --set-env-vars=WEGLI_IMAGES_BUCKET_NAME=${{ secrets.WEGLI_IMAGES_BUCKET_NAME }}

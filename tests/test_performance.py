@@ -59,6 +59,8 @@ class TestPerformance(unittest.TestCase):
                     (car_brands, car_colors) = detect_recognize_car(
                         cnn_alpr, cnn_car_rec, cnn_color_rec, image_path, img, yolo_car
                     )
+                    car_brands = get_uniques(order_by_frequency(car_brands))
+                    car_colors = get_uniques(order_by_frequency(car_colors))
                     license_plate_dict = detect_recognize_plate(
                         cnn_alpr,
                         cnn_car_rec,
@@ -72,21 +74,21 @@ class TestPerformance(unittest.TestCase):
                     ]
                     license_plate_numbers = get_uniques(order_by_frequency(license_plate_arr))
 
-                    if license_plate_number in license_plate_numbers[:3]:
+                    if license_plate_number in license_plate_numbers:
                         correct_license_plate_numbers += 1
                     else:
                         print(
                             f"Incorrect lpn for {filename}; Detected: {license_plate_numbers[:3]} - Actual: {license_plate_number}"
                         )
 
-                    if make in car_brands[:3]:
+                    if make in car_brands:
                         correct_makes += 1
                     else:
                         print(
                             f"Incorrect make for {filename}; Detected: {car_brands[:3]} - Actual: {make}"
                         )
 
-                    if color in car_colors[:3]:
+                    if color in car_colors:
                         correct_colors += 1
                     else:
                         print(
@@ -99,13 +101,13 @@ class TestPerformance(unittest.TestCase):
         num_charges = len(charges)
 
         precision_license_plate_numbers = correct_license_plate_numbers / num_charges
-        print(f"First three LPN detection precision: {precision_license_plate_numbers}")
+        print(f"LPN detection precision: {precision_license_plate_numbers}")
 
         precision_makes = correct_makes / num_charges
-        print(f"First three make detection precision: {precision_makes}")
+        print(f"Make detection precision: {precision_makes}")
 
         precision_colors = correct_colors / num_charges
-        print(f"First three color detection precision: {precision_colors}")
+        print(f"Color detection precision: {precision_colors}")
 
         self.assertTrue(precision_license_plate_numbers > 0.70)
         self.assertTrue(precision_makes > 0.85)
