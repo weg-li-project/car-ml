@@ -23,6 +23,7 @@ and extract checkpoints folder into the data directory
 1. Enable the following Google APIs
     * Cloud Build API
     * Cloud Run API
+    * Cloud Vision API
 1. Create a service account key in IAM with the following roles
     * Editor
 
@@ -36,10 +37,11 @@ and extract checkpoints folder into the data directory
 
 ### CI/CD
 1. In your Github repository settings add the following secrets
-  * WEGLI_IMAGES_BUCKET_NAME - Name of the bucket where your user images are stored
-  * SERVICE_BUCKET_NAME - Name of the bucket where the ML model data is stored
-  * GCP_PROJECT_ID - Project ID of the Google Cloud project
-  * GCP_SERVICE_ACCOUNT_KEY - Content of a json service account key with all required permissions
+    * WEGLI_IMAGES_BUCKET_NAME - Name of the bucket where your user images are stored
+    * SERVICE_BUCKET_NAME - Name of the bucket where the ML model data is stored
+    * GCP_PROJECT_ID - Project ID of the Google Cloud project
+    * GCP_SERVICE_ACCOUNT_KEY - Content of a json service account key with all required permissions
+1. Pushes to main will now automatically deploy the API
 
 ### Deployment
 Make sure you noted every needed environment variable.
@@ -54,7 +56,7 @@ and Cloud Run (write)
 Use gcloud in the terminal and invoke the following:
 
     gcloud builds submit --tag gcr.io/${{ GCP_PROJECT_ID }}/image-analysis --gcs-source-staging-dir=gs://${{ SERVICE_BUCKET_NAME }}/source
-    gcloud run deploy image-analysis --image gcr.io/${{ GCP_PROJECT_ID }}/image-analysis --no-allow-unauthenticated --region=europe-west3 --memory=4G --platform=managed
+    gcloud run deploy image-analysis --image gcr.io/${{ GCP_PROJECT_ID }}/image-analysis --no-allow-unauthenticated --region=europe-west3 --cpu=4 --memory=8G --platform=managed
 
 ### Misc
 For running the service locally, just set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` with the path to a service account file that covers all needed roles and run the following command in the root directory
