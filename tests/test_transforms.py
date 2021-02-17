@@ -30,6 +30,18 @@ class MyTestCase(unittest.TestCase):
 
         self.assertListEqual(expected, actual)
 
+    def test_to_list(self):
+        d = {
+            '0': [4, 5],
+            '@': [5, 8],
+            'p': [2, 0, 1]
+        }
+        expected = [4, 5, 5, 8, 2, 0, 1]
+
+        actual = to_list(d)
+
+        self.assertListEqual(expected, actual)
+
 
 if __name__ == '__main__':
     unittest.main()
