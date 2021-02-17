@@ -1,9 +1,12 @@
 import re
+from typing import Final
 
 import requests
 from behave import *
 
 from requests import Response
+
+FIVE_MINUTES_IN_SECONDS: Final = 60 * 5
 
 
 @given('the API url "{api_url}"')
@@ -19,7 +22,7 @@ def step_impl(context):
 @when("I post the Cloud Storage image urls to the API url")
 def step_impl(context):
     json = {'google_cloud_urls': context.cloud_storage_urls}
-    context.response = requests.post(context.api_url, json=json)
+    context.response = requests.post(context.api_url, json=json, timeout=FIVE_MINUTES_IN_SECONDS)
 
 
 @then('return the status "{status_code}"')
