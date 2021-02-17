@@ -5,7 +5,8 @@ import cv2
 import random
 import colorsys
 
-from yolo_cnn.core.utils import get_keys_alpr, get_keys_car_brand, get_keys_car_color
+from yolo_cnn.core.utils import get_keys_alpr, get_keys_car_brand, get_keys_car_color, read_class_names, containsLP
+from util.paths import class_names_yolo_car
 
 def _extract_contours(gray, thresh):
     letter_rects = []
@@ -264,25 +265,30 @@ def _recognize_car_box(img, coords, cnn_car_rec, cnn_color_rec):
     max_width_tol = int(img_width * 0.014)
     box = img[max(int(ymin) - 5, 0):min(int(ymax) + 5, img_height), max(int(xmin) - min_width_tol, 0):min(int(xmax) + max_width_tol, img_width), :]
     box = cv2.resize(box, (224, 224))
-    box_tensor = tf.convert_to_tensor(box)
-    box_tensor = box[tf.newaxis, :, :, :]
 
-    predictions = cnn_car_rec.predict(box_tensor)
-    idx, confidence = np.argmax(predictions), np.max(predictions)
-    keys = get_keys_car_brand()
-    car_brand = keys[idx]
-    print(car_brand)
+    box_tensor = tf.convert_to_tensor(box)
+    box_tensor /= 255
+    box_tensor = box_tensor[tf.newaxis, :, :, :]
 
     predictions = cnn_color_rec.predict(box_tensor)
     idx, confidence = np.argmax(predictions), np.max(predictions)
     keys = get_keys_car_color()
     car_color = keys[idx]
-    print(car_color)
+
+    predictions = cnn_car_rec.predict(box_tensor)
+    idx, confidence = np.argmax(predictions), np.max(predictions)
+    keys = get_keys_car_brand()
+    car_brand = keys[idx]
 
     return car_brand, car_color
 
-def analyze_box(image, bboxes, cnn_alpr, cnn_car_rec, cnn_color_rec, info=False):
-    classes = ['license_plate', 'car', 'truck']
+def analyze_box(image, bboxes, cnn_alpr, cnn_car_rec, cnn_color_rec, info=False, case='CAR', lp_boxes=None):
+
+    if case == 'CAR':
+        classes = read_class_names(class_names_yolo_car)
+    if case == 'PLATE':
+        classes = ['license_plate']
+
     num_classes = len(classes)
     image_h, image_w, _ = image.shape
     hsv_tuples = [(1.0 * x / num_classes, 1., 1.) for x in range(num_classes)]
@@ -301,24 +307,34 @@ def analyze_box(image, bboxes, cnn_alpr, cnn_car_rec, cnn_color_rec, info=False)
 
         if int(out_classes[i]) < 0 or int(out_classes[i]) > num_classes:
             continue
-        coor = out_boxes[i]
+        coords = out_boxes[i]
         score = out_scores[i]
         class_ind = int(out_classes[i])
         class_name = classes[class_ind]
 
         if info:
-            print("Object found: {}, Confidence: {:.2f}, BBox Coords (xmin, ymin, xmax, ymax): {}, {}, {}, {} ".format(class_name, score, coor[0], coor[1], coor[2], coor[3]))
+            print("Object found: {}, Confidence: {:.2f}, BBox Coords (xmin, ymin, xmax, ymax): {}, {}, {}, {} ".format(class_name, score, coords[0], coords[1], coords[2], coords[3]))
 
-        if class_name == 'license_plate':
-            plate_number = _recognize_lp_box(image, coor, cnn_alpr)
+        if case == 'PLATE' and class_name == 'license_plate':
+            plate_number = _recognize_lp_box(image, coords, cnn_alpr)
             plate_numbers.append(plate_number)
-            return image, plate_numbers
 
-        elif class_name == 'car' or class_name == 'truck':
-            car_brand, car_color = _recognize_car_box(image, coor, cnn_car_rec, cnn_color_rec)
-            car_brands.append(car_brand)
-            car_colors.append(car_color)
-            return image, (car_brands, car_colors)
+        elif case == 'CAR' and class_name == 'car' or class_name == 'truck':
 
-        else:
-            return image, None
+            # check if detected box is of adequate size to be the vehicle we are looking for
+            xmin, ymin, xmax, ymax = coords[0], coords[1], coords[2], coords[3]
+            box_width, box_height = xmax - xmin, ymax - ymin
+            if image_h * 0.12 <= box_height and image_w * 0.12 <= box_width:
+
+                # test if any license plate was found
+                if lp_boxes and lp_boxes[3] != 0:
+                    if not containsLP(coords, lp_boxes):
+                        continue
+                car_brand, car_color = _recognize_car_box(image, coords, cnn_car_rec, cnn_color_rec)
+                if car_brand not in car_brands: car_brands.append(car_brand)
+                if car_color not in car_colors: car_colors.append(car_color)
+
+    if case == 'PLATE':
+        return image, plate_numbers
+    if case == 'CAR':
+        return image, (car_brands, car_colors)

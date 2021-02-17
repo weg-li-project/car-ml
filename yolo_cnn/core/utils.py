@@ -112,3 +112,14 @@ def read_class_names(class_file_name):
         for ID, name in enumerate(data):
             names[ID] = name.strip('\n')
     return names
+
+def containsLP(car_coords, lp_boxes):
+    out_boxes, out_scores, out_classes, num_boxes = lp_boxes
+    for lp_coords in out_boxes:
+        xmin_car, ymin_car, xmax_car, ymax_car = car_coords[0], car_coords[1], car_coords[2], car_coords[3]
+        xmin_lp, ymin_lp, xmax_lp, ymax_lp = lp_coords[0], lp_coords[1], lp_coords[2], lp_coords[3]
+
+        if xmin_car <= xmin_lp and xmax_car >= xmax_lp and ymin_car <= ymin_lp and ymax_car >= ymax_lp:
+            return True
+
+    return False
