@@ -42,8 +42,30 @@ def read_charges():
         )
 
 
+def map_color(color):
+    if color == "silver" or color == "gray":
+        return "gray_silver"
+    if color == "gold" or color == "yellow":
+        return "gold_yellow"
+    if color == "pink" or color == "purple" or color == "violet":
+        return "pink_purple_violet"
+    return color
+
+
 @needs_private_testdata
 class TestPerformance(unittest.TestCase):
+    def test_color_conversion(self):
+        colors = ["silver", "yellow", "pink", "violet", "red", "blue"]
+        converted_colors = list(map(map_color, colors))
+        assert converted_colors == [
+            "gray_silver",
+            "gold_yellow",
+            "pink_purple_violet",
+            "pink_purple_violet",
+            "red",
+            "blue",
+        ]
+
     def test_detection_performance(self):
         yolo_lp, yolo_car, cnn_alpr, cnn_color_rec, cnn_car_rec = load()
         charges = read_charges()
@@ -53,15 +75,10 @@ class TestPerformance(unittest.TestCase):
         correct_colors = 0
         for image_path, license_plate_number, make, color in charges:
             with open(image_path, "rb") as image:
-                filename = image_path.split('/')[-1]
+                filename = image_path.split("/")[-1]
                 img = bytearray(image.read())
                 try:
-                    (car_brands, car_colors) = detect_recognize_car(
-                        cnn_alpr, cnn_car_rec, cnn_color_rec, image_path, img, yolo_car
-                    )
-                    car_brands = get_uniques(order_by_frequency(car_brands))
-                    car_colors = get_uniques(order_by_frequency(car_colors))
-                    license_plate_dict = detect_recognize_plate(
+                    license_plate_dict, lp_boxes = detect_recognize_plate(
                         cnn_alpr,
                         cnn_car_rec,
                         cnn_color_rec,
@@ -69,30 +86,43 @@ class TestPerformance(unittest.TestCase):
                         img,
                         yolo_lp,
                     )
+                    (car_brands, car_colors) = detect_recognize_car(
+                        cnn_alpr,
+                        cnn_car_rec,
+                        cnn_color_rec,
+                        image_path,
+                        img,
+                        yolo_car,
+                        lp_boxes,
+                    )
+                    car_brands = get_uniques(order_by_frequency(car_brands))
+                    car_colors = get_uniques(order_by_frequency(car_colors))
                     license_plate_arr = [
                         lpn for lpns in license_plate_dict.values() for lpn in lpns
                     ]
-                    license_plate_numbers = get_uniques(order_by_frequency(license_plate_arr))
+                    license_plate_numbers = get_uniques(
+                        order_by_frequency(license_plate_arr)
+                    )
 
                     if license_plate_number in license_plate_numbers:
                         correct_license_plate_numbers += 1
                     else:
                         print(
-                            f"Incorrect lpn for {filename}; Detected: {license_plate_numbers[:3]} - Actual: {license_plate_number}"
+                            f"Incorrect lpn for {filename}; Detected: {license_plate_numbers} - Actual: {license_plate_number}"
                         )
 
                     if make in car_brands:
                         correct_makes += 1
                     else:
                         print(
-                            f"Incorrect make for {filename}; Detected: {car_brands[:3]} - Actual: {make}"
+                            f"Incorrect make for {filename}; Detected: {car_brands} - Actual: {make}"
                         )
 
-                    if color in car_colors:
+                    if map_color(color) in car_colors:
                         correct_colors += 1
                     else:
                         print(
-                            f"Incorrect color for {filename}; Detected: {car_colors[:3]} - Actual: {color}"
+                            f"Incorrect color for {filename}; Detected: {car_colors} - Actual: {color}"
                         )
 
                 except Exception as err:
