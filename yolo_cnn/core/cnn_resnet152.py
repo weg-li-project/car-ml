@@ -145,7 +145,7 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     x = Activation('relu', name='res' + str(stage) + block + '_relu')(x)
     return x
 
-def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None):
+def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None, new_model=True):
     eps = 1.1e-5
     global bn_axis
     if K.image_data_format() == 'channels_last':
@@ -178,13 +178,14 @@ def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None):
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
 
-    x_fc = AveragePooling2D((7, 7), name='avg_pool')(x)
-    x_fc = Flatten()(x_fc)
-    x_fc = Dense(1000, activation='softmax', name='fc1000')(x_fc)
+    if new_model:
+        x_fc = AveragePooling2D((7, 7), name='avg_pool')(x)
+        x_fc = Flatten()(x_fc)
+        x_fc = Dense(1000, activation='softmax', name='fc1000')(x_fc)
 
-    model = Model(img_input, x_fc)
+        model = Model(img_input, x_fc)
 
-    model.load_weights(resnet_weights_filepath, by_name=True)
+        model.load_weights('../' + resnet_weights_filepath, by_name=True)
 
     # Truncate and replace softmax layer for transfer learning
     # Cannot use model.layers.pop() since model is not of Sequential() type
@@ -197,7 +198,7 @@ def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None):
 
     # Learning rate is changed to 0.001
     sgd = tf.keras.optimizers.SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
-    model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=sgd, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
     return model
 
@@ -228,12 +229,12 @@ def train(data_dir, checkpoint_dir, epochs=5, patience=5, num_classes=70):
     train_ds_normalized = train_ds.map(lambda x, y: (normalization_layer(x), y))
     val_ds_normalized = val_ds.map(lambda x, y: (normalization_layer(x), y))
 
-    model = resnet152_model(img_height, img_width, color_type=3, num_classes=num_classes)
+    model = resnet152_model(img_height, img_width, color_type=3, num_classes=num_classes, new_model=True)
     sgd = tf.keras.optimizers.SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(optimizer=sgd, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
     latest = tf.train.latest_checkpoint(os.path.dirname(checkpoint_dir))
-    checkpoint_dir = checkpoint_dir
+
     try:
         model.load_weights(latest)
     except:
