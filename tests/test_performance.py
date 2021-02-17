@@ -59,7 +59,7 @@ class TestPerformance(unittest.TestCase):
         for image_path, license_plate_number, make, color in charges:
             with open(image_path, "rb") as image:
                 filename = str(image_path.split("/")[-1])
-                img = bytearray(image.read())
+                img = bytes(bytearray(image.read()))
                 try:
                     license_plate_numbers, car_brands, car_colors = detect_car_attributes([(filename, img)])
 

@@ -1,17 +1,17 @@
 import unittest
 
-from util.transforms import to_json_suggestions, get_uniques, order_by_frequency
+from util.transforms import to_json_suggestions, get_uniques, order_by_frequency, to_list
 
 
 class MyTestCase(unittest.TestCase):
     def test_to_json_suggestions_empty(self):
-        suggestions = '{"suggestions": {"license_plate_number": [], "make": [], "color": [], "model": []}}'
+        suggestions = '{"suggestions": {"license_plate_number": [], "make": [], "color": []}}'
         json_suggestions: str = to_json_suggestions()
         self.assertEqual(json_suggestions, suggestions)
 
     def test_to_json_suggestions_with_data(self):
-        suggestions = '{"suggestions": {"license_plate_number": ["HM VM 546"], "make": ["BMW"], "color": ["blue"], "model": ["iX 12"]}}'
-        json_suggestions: str = to_json_suggestions(license_plate_numbers=["HM VM 546"], makes=["BMW"], colors=["blue"], models=["iX 12"])
+        suggestions = '{"suggestions": {"license_plate_number": ["HM VM 546"], "make": ["BMW"], "color": ["blue"]}}'
+        json_suggestions: str = to_json_suggestions(license_plate_numbers=["HM VM 546"], makes=["BMW"], colors=["blue"])
         self.assertEqual(json_suggestions, suggestions)
 
     def test_get_uniques(self):
