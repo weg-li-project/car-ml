@@ -33,4 +33,4 @@ jobs:
       - name: Copy models
         run: gsutil -m cp -r gs://${{ secrets.SERVICE_BUCKET_NAME }}/checkpoints ./data
       - name: Test performance of car attributes detection
-        run: pytest ./tests/test_performance.py
+        run: pytest ./tests/test_performance.py --no-cov
