@@ -26,7 +26,6 @@ Hyundai
 IVECO
 Infiniti
 Isuzu
-Iveco
 Jaguar
 Jeep
 Kia
@@ -61,6 +60,7 @@ SsangYong
 Streetscooter
 Subaru
 Suzuki
+Škoda
 Tata
 Tesla
 Toyota
@@ -68,4 +68,3 @@ Venturi
 Volkswagen
 Volvo
 Wiesmann
-Škoda
