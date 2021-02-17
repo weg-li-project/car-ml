@@ -105,3 +105,10 @@ def load_letter_data(img_dir):
     y = np.asarray([(x in dict.keys() and dict[x]) for x in labels])
 
     return X, y
+
+def read_class_names(class_file_name):
+    names = {}
+    with open(class_file_name, 'r') as data:
+        for ID, name in enumerate(data):
+            names[ID] = name.strip('\n')
+    return names

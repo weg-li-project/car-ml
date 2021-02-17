@@ -22,3 +22,5 @@ vision_api_results_path = os.path.join(testdata_path, 'vision_api_results.csv')
 yolo_cnn_path = os.path.join(root_path, 'yolo_cnn/')
 car_brands_filepath = os.path.join(yolo_cnn_path, 'car_brands.txt')
 car_colors_filepath = os.path.join(yolo_cnn_path, 'car_colors.txt')
+
+class_names_yolo_car = os.path.join(yolo_cnn_path, 'class_names_yolo_car.txt')
