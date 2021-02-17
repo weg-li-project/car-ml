@@ -1,6 +1,12 @@
 name: Performance
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+    inputs:
+      cloud_vision_fallback:
+        description: 'Activate cloud vision fallback'
+        required: true
+        default: 'false'
 
 jobs:
   perf:
@@ -34,3 +40,5 @@ jobs:
         run: gsutil -m cp -r gs://${{ secrets.SERVICE_BUCKET_NAME }}/checkpoints ./data
       - name: Test performance of car attributes detection
         run: pytest ./tests/test_performance.py -s --no-cov
+        env:
+          CLOUD_VISION_FALLBACK: ${{ github.event.inputs.cloud_vision_fallback }}

@@ -10,7 +10,7 @@ from yolo_cnn.detect import main as alpr_yolo_cnn_main
 
 
 def detect_car_attributes(
-    image_data: List[Tuple[str, bytes]]
+    image_data: List[Tuple[str, bytes]], cloud_vision_fallback_active: bool = True
 ) -> Tuple[List[str], List[str], List[str]]:
     uris = [data[0] for data in image_data]
     images = [data[1] for data in image_data]
@@ -19,7 +19,8 @@ def detect_car_attributes(
         uris=uris, images=images
     )
 
-    plate_numbers_dict = cloud_vision_fallback(plate_numbers_dict, images, uris)
+    if cloud_vision_fallback_active:
+        plate_numbers_dict = cloud_vision_fallback(plate_numbers_dict, images, uris)
 
     return (
         result_list(plate_numbers_dict),
