@@ -57,8 +57,6 @@ class TestPerformance(unittest.TestCase):
         correct_makes = 0
         correct_colors = 0
         for image_path, license_plate_number, make, color in charges:
-            if not image_path.endswith('IMG_20190809_162216.jpg'):
-                continue
             with open(image_path, "rb") as image:
                 filename = str(image_path.split("/")[-1])
                 img = bytes(bytearray(image.read()))
