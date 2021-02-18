@@ -53,8 +53,6 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
 pyparsing==2.4.7
-pytest==6.2.1
-pytest-cov==2.10.1
 python-dateutil==2.8.1
 pytz==2020.5
 PyYAML==5.3.1
