@@ -124,6 +124,6 @@ def main(uris, images, yolo_lp=yolo_lp_model_path, yolo_car=yolo_car_model_path,
         plate_numbers_dict.update(plate_numbers)
         car_brands_dict.update({uris[index]: car_brands})
         car_colors_dict.update({uris[index]: car_colors})
-        print(plate_numbers_dict)
+        print('alpr yolo main:  {}'.format(plate_numbers_dict))
 
     return plate_numbers_dict, car_brands_dict, car_colors_dict

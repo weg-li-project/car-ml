@@ -317,6 +317,7 @@ def analyze_box(image, bboxes, cnn_alpr, cnn_car_rec, cnn_color_rec, info=False,
 
         if case == 'PLATE' and class_name == 'license_plate':
             plate_number = _recognize_lp_box(image, coords, cnn_alpr)
+            print('analyze box plate_number : {}'.format(plate_number))
             plate_numbers.append(plate_number)
 
         elif case == 'CAR' and class_name == 'car' or class_name == 'truck':

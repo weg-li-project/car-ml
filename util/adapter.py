@@ -19,7 +19,7 @@ def detect_car_attributes(
         uris=uris, images=images
     )
 
-    print(plate_numbers_dict)
+    print('detect_car_attributes method : {}'.format(plate_numbers_dict))
 
     # TODO: remove wrong license plates
 
