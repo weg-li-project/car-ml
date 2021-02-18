@@ -19,7 +19,7 @@ def detect_car_attributes(
         uris=uris, images=images
     )
 
-    if cloud_vision_fallback_active:
+    if False:
         plate_numbers_dict = cloud_vision_fallback(plate_numbers_dict, images, uris)
 
     return (
