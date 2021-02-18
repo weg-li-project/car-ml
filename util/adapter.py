@@ -21,10 +21,7 @@ def detect_car_attributes(
 
     print('detect_car_attributes method : {}'.format(plate_numbers_dict))
 
-    # TODO: remove wrong license plates
-
-
-    if False:
+    if cloud_vision_fallback_active:
         plate_numbers_dict = cloud_vision_fallback(plate_numbers_dict, images, uris)
 
     return (
