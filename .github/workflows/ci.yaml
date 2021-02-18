@@ -44,6 +44,7 @@ jobs:
       run: >
         gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/image-analysis
         --gcs-source-staging-dir=gs://${{ secrets.SERVICE_BUCKET_NAME }}/source
+        --timeout=20m0s
     - name: Deploy to GCP
       run: >
         gcloud run deploy image-analysis-test --image=gcr.io/${{ secrets.GCP_PROJECT_ID }}/image-analysis
