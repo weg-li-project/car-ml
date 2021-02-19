@@ -1,12 +1,13 @@
-
 import os
+import getopt
+import sys
+import argparse as arg
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Input, ZeroPadding2D, BatchNormalization, Activation, add, AveragePooling2D, InputSpec
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Input, ZeroPadding2D, BatchNormalization, \
+    Activation, add, AveragePooling2D, InputSpec
 from tensorflow.keras import initializers as initializations
 from tensorflow.keras import backend as K
 from tensorflow.keras import Model
-
-from util.paths import resnet_weights_filepath
 
 
 class Scale(tf.keras.layers.Layer):
@@ -34,7 +35,8 @@ class Scale(tf.keras.layers.Layer):
             Theano/TensorFlow function to use for weights initialization.
             This parameter is only relevant if you don't pass a `weights` argument.
     '''
-    def __init__(self, weights=None, axis=-1, momentum = 0.9, beta_init='zero', gamma_init='one', **kwargs):
+
+    def __init__(self, weights=None, axis=-1, momentum=0.9, beta_init='zero', gamma_init='one', **kwargs):
         self.momentum = momentum
         self.axis = axis
         self.beta_init = initializations.get(beta_init)
@@ -48,8 +50,8 @@ class Scale(tf.keras.layers.Layer):
 
         self.gamma = K.variable(self.gamma_init(shape), name='{}_gamma'.format(self.name))
         self.beta = K.variable(self.beta_init(shape), name='{}_beta'.format(self.name))
-        #self.gamma = self.gamma_init(shape, name='{}_gamma'.format(self.name))
-        #self.beta = self.beta_init(shape, name='{}_beta'.format(self.name))
+        # self.gamma = self.gamma_init(shape, name='{}_gamma'.format(self.name))
+        # self.beta = self.beta_init(shape, name='{}_beta'.format(self.name))
         self._trainable_weights = [self.gamma, self.beta]
 
         if self.initial_weights is not None:
@@ -68,6 +70,7 @@ class Scale(tf.keras.layers.Layer):
         config = {"momentum": self.momentum, "axis": self.axis}
         base_config = super(Scale, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+
 
 def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)):
     '''conv_block is the block that has a conv layer at shortcut
@@ -110,6 +113,7 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
     x = Activation('relu', name='res' + str(stage) + block + '_relu')(x)
     return x
 
+
 def identity_block(input_tensor, kernel_size, filters, stage, block):
     '''The identity_block is the block that has no conv layer at shortcut
         # Arguments
@@ -145,7 +149,8 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     x = Activation('relu', name='res' + str(stage) + block + '_relu')(x)
     return x
 
-def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None, new_model=True):
+
+def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None, new_model=True, resnet_weights_filepath=None):
     eps = 1.1e-5
     global bn_axis
     if K.image_data_format() == 'channels_last':
@@ -185,7 +190,10 @@ def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None, new_mode
 
         model = Model(img_input, x_fc)
 
-        model.load_weights('../' + resnet_weights_filepath, by_name=True)
+        try:
+            model.load_weights(resnet_weights_filepath, by_name=True)
+        except:
+            raise ValueError('the given resnet_weights_filepath is invalid')
 
     # Truncate and replace softmax layer for transfer learning
     # Cannot use model.layers.pop() since model is not of Sequential() type
@@ -202,13 +210,14 @@ def resnet152_model(img_rows, img_cols, color_type=1, num_classes=None, new_mode
 
     return model
 
-def train(data_dir, checkpoint_dir, epochs=5, patience=5, num_classes=70):
+
+def train(data_dir, checkpoint_dir, epochs=5, patience=5, num_classes=70, resnet_weights_filepath=None):
     batch_size = 3
     img_height = 224
     img_width = 224
 
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-       data_dir,
+        data_dir,
         validation_split=0.2,
         subset="training",
         seed=123,
@@ -229,7 +238,7 @@ def train(data_dir, checkpoint_dir, epochs=5, patience=5, num_classes=70):
     train_ds_normalized = train_ds.map(lambda x, y: (normalization_layer(x), y))
     val_ds_normalized = val_ds.map(lambda x, y: (normalization_layer(x), y))
 
-    model = resnet152_model(img_height, img_width, color_type=3, num_classes=num_classes, new_model=True)
+    model = resnet152_model(img_height, img_width, color_type=3, num_classes=num_classes, new_model=True, resnet_weights_filepath=resnet_weights_filepath)
     sgd = tf.keras.optimizers.SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(optimizer=sgd, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
@@ -256,4 +265,22 @@ def train(data_dir, checkpoint_dir, epochs=5, patience=5, num_classes=70):
         patience=patience,
         verbose=1)
 
-    model.fit(train_ds_normalized, validation_data=val_ds_normalized, epochs=epochs, callbacks=[cp_callback, es_callback])
+    model.fit(train_ds_normalized, validation_data=val_ds_normalized, epochs=epochs,
+              callbacks=[cp_callback, es_callback])
+
+
+def main(argv):
+    parser = arg.ArgumentParser(description='Train the model.')
+    parser.add_argument('--data_dir', metavar='<directory>', type=str, help='the data directory', required=True)
+    parser.add_argument('--checkpoint_dir', metavar='<directory>', type=str, help='the checkpoint directory', required=True)
+    parser.add_argument('--epochs', metavar='<number>', type=int, help='the number of epochs to train', required=True)
+    parser.add_argument('--patience', metavar='<number>', type=int, help='the number of epochs to wait after training did not get better', required=True)
+    parser.add_argument('--num_classes', metavar='<number>', type=int, help='the number of categories in the dataset', required=True)
+    parser.add_argument('--resnet_weights', metavar='<directory>', type=str, help='the weights for the pretrained resnet152 model', required=True)
+    args = parser.parse_args()
+
+    train(data_dir=args.data_dir, checkpoint_dir=args.checkpoint_dir, epochs=args.epochs, patience=args.patience, num_classes=args.num_classes, resnet_weights_filepath=args.resnet_weights)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
