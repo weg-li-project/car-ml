@@ -12,13 +12,13 @@ from util.paths import vision_api_results_path, charges_schroeder_path
 from tests.skip_markers import needs_private_testdata
 
 
-@needs_private_testdata
+# @needs_private_testdata
 class TestObjectDetection(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestObjectDetection, self).__init__(*args, **kwargs)
         self.results_api_df = pd.read_csv(vision_api_results_path, delimiter=';')
-        np.random.seed(3) # i = 664
+        np.random.seed(3)  # i = 664
         i = np.random.randint(self.results_api_df.shape[0])
         self.__init_objects__(i)
         self.__init_texts__(i)
@@ -62,63 +62,6 @@ class TestObjectDetection(unittest.TestCase):
         assert object_.ulc[0] == object_.ulc_normalized.x * width, 'testDetectedObjectPolygon failed'
         assert object_.ulc[1] == object_.ulc_normalized.y * height, 'testDetectedObjectPolygon failed'
 
-    def testCalculatePolyAreaSquare(self):
-
-        detected_object = DetectedObject(self.objects[0], self.img)
-        detected_object.llc = (0, 5)
-        detected_object.lrc = (5, 5)
-        detected_object.urc = (5, 0)
-        detected_object.ulc = (0, 0)
-
-        area = detected_object._calculate_Poly_area()
-
-        assert area == 5 ** 2, 'testCalculatePolyAreaSquare failed'
-
-    def testCalculatePolyAreaRectangle(self):
-
-        detected_object = DetectedObject(self.objects[0], self.img)
-        detected_object.llc = (0, 4)
-        detected_object.lrc = (6, 4)
-        detected_object.urc = (6, 0)
-        detected_object.ulc = (0, 0)
-
-        area = detected_object._calculate_Poly_area()
-
-        assert area == 4 * 6, 'testCalculatePolyAreaRectangle failed'
-
-    def testCalculatePolyAreaTrapez(self):
-
-        detected_object = DetectedObject(self.objects[0], self.img)
-        detected_object.llc = (2, 2)
-        detected_object.lrc = (5, 2)
-        detected_object.urc = (7, 1)
-        detected_object.ulc = (1, 1)
-
-        area = detected_object._calculate_Poly_area()
-        assert area == 3 + 0.5 + 1, 'testCalculatePolyAreaTrapez failed'
-
-    def testCalculatePolyArea1(self):
-
-        detected_object = DetectedObject(self.objects[0], self.img)
-        detected_object.llc = (1, 4)
-        detected_object.lrc = (4, 4)
-        detected_object.urc = (4, 1)
-        detected_object.ulc = (0, 0)
-
-        area = detected_object._calculate_Poly_area()
-        assert area == 12, 'testCalculatePolyArea failed'
-
-    def testCalculatePolyArea2(self):
-
-        detected_object = DetectedObject(self.objects[0], self.img)
-        detected_object.llc = (11, 13)
-        detected_object.lrc = (15, 16)
-        detected_object.urc = (14, 10)
-        detected_object.ulc = (8, 9)
-
-        area = detected_object._calculate_Poly_area()
-        assert area == 21, 'testCalculatePolyArea failed'
-
     def testContainsObject(self):
 
         detected_object = DetectedObject(self.objects[0], self.img)
@@ -131,7 +74,7 @@ class TestObjectDetection(unittest.TestCase):
         detected_object.llc_x = 0
         detected_object.llc_y = 4
 
-        other = Polygon(((2,2), (4,2), (4,3), (2,3)))
+        other = Polygon(((2, 2), (4, 2), (4, 3), (2, 3)))
 
         assert detected_object.containsObject(other), 'testContainsObject failed'
 
@@ -141,30 +84,6 @@ class TestObjectDetection(unittest.TestCase):
 
         assert 'DRO 1812' == license_plate.findTexts(self.texts), 'testFindTexts failed'
 
-    def testFindTextsMount(self):
-
-        i = self.results_api_df.index[self.results_api_df['filename'] == 'IMG_20190811_095716.jpg'][0]
-
-        objects_csv = json.loads(self.results_api_df.iloc[i, :]['localized_object_annotations'])
-        objects = []
-
-        for object_ in objects_csv:
-            loa = LocalizedObjectAnnotation(object_)
-            objects.append(loa)
-
-        texts_csv = json.loads(self.results_api_df.iloc[i, :]['text_annotations'])
-        texts = []
-
-        for text in texts_csv:
-            ea = EntityAnnotation(text)
-            texts.append(ea)
-
-        img_path = charges_schroeder_path + 'IMG_20190809_161740.jpg'
-        img = Image.open(img_path)
-
-        license_plate = DetectedObject(objects[2], img)
-
-        assert 'ST W 80' == license_plate.findTexts(texts), 'testFindTextsMount failed'
 
 if __name__ == '__main__':
     unittest.main()

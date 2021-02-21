@@ -5,9 +5,13 @@ from google.cloud import vision
 
 
 class DetectedObject:
+    '''
+    Class to analyze objects detected by google vision api.
+    @param object_: object detected by google vision api
+    @param img: image
+    '''
 
     def __init__(self, object_, img):
-
         self.name = object_.name
         self.confidence = object_.score
         self.object_ = object_
@@ -15,14 +19,23 @@ class DetectedObject:
         self.ulc_normalized, self.urc_normalized, self.lrc_normalized, self.llc_normalized = self._get_normalized_corners()
         self.Polygon_normalized = self._compute_normalized_Poly()
         self.Polygon = self._compute_Poly()
+        # ulc: upper left corner, urc : upper right corner, lrc : lower right corner, llc : lower left corner
         self.ulc, self.urc, self.lrc, self.llc = self._get_corners()
         self.Polygon_area = self._calculate_Poly_area()
 
     def _get_normalized_corners(self):
+        '''
+        Normalize the coordinates of the bounding polygon of the object.
+        @return: normalized coordinates
+        '''
         return self.object_.bounding_poly.normalized_vertices[0], self.object_.bounding_poly.normalized_vertices[1], \
                self.object_.bounding_poly.normalized_vertices[2], self.object_.bounding_poly.normalized_vertices[3]
 
     def _get_corners(self):
+        '''
+        Get the corner coordinates of the bounding polygon of the object.
+        @return: coordinates
+        '''
         self.ulc_x = self.Polygon.get_xy()[0][0]
         self.ulc_y = self.Polygon.get_xy()[0][1]
         self.urc_x = self.Polygon.get_xy()[1][0]
@@ -34,11 +47,20 @@ class DetectedObject:
         return self.Polygon.get_xy()[0], self.Polygon.get_xy()[1], self.Polygon.get_xy()[2], self.Polygon.get_xy()[3]
 
     def _compute_normalized_Poly(self):
-        return Polygon(xy=[(self.ulc_normalized.x, self.ulc_normalized.y), (self.urc_normalized.x, self.urc_normalized.y),
-                    (self.lrc_normalized.x, self.lrc_normalized.y), (self.llc_normalized.x, self.llc_normalized.y)],
-                fill=False, linewidth=3, edgecolor='r')
+        '''
+        Compute the bounding polygon of the object in normalized space.
+        @return: normalized polygon
+        '''
+        return Polygon(
+            xy=[(self.ulc_normalized.x, self.ulc_normalized.y), (self.urc_normalized.x, self.urc_normalized.y),
+                (self.lrc_normalized.x, self.lrc_normalized.y), (self.llc_normalized.x, self.llc_normalized.y)],
+            fill=False, linewidth=3, edgecolor='r')
 
     def _compute_Poly(self):
+        '''
+        Compute the bounding polygon of the object.
+        @return: polygon
+        '''
         img_width, img_height = self.img.size[:2]
         return Polygon(np.stack((self.Polygon_normalized.get_xy()[:, 0] * img_width, self.Polygon_normalized.get_xy()[:, 1] * img_height), axis=1))
 
@@ -50,9 +72,19 @@ class DetectedObject:
         return abs(a) / 2.0
 
     def isObject(self, object_name):
+        '''
+        Check if object is of certain type.
+        @param object_name: name of the object
+        @return: True if object is of certain type
+        '''
         return self.name == object_name
 
     def containsObject(self, other):
+        '''
+        Check whether another object is contained within the bounding polygon of the object.
+        @param other: other object
+        @return: True if object is contained within the bounding polygon of the object
+        '''
 
         if isinstance(other, DetectedObject):
             ulc_x = other.ulc.x
@@ -75,9 +107,7 @@ class DetectedObject:
             llc_x = poly.get_xy()[3][0]
             llc_y = poly.get_xy()[3][1]
 
-        height, width = self.img.size[:2]
-
-        # TODO: improve tolerance
+        # tolerances on the x and y axis
         eps_x = (self.lrc_x - self.llc_x) * 0.15
         eps_y = (self.llc_y - self.ulc_y) * 0.15
 
@@ -88,10 +118,16 @@ class DetectedObject:
             return False
 
     def findTexts(self, texts):
+        '''
+        Find texts contained in the bounding polygon of the object.
+        @param texts: texts
+        @return: texts that are contained in the object
+        '''
         containedTexts = []
 
         for text in texts:
-            xy = [(text.bounding_poly.vertices[i].x, text.bounding_poly.vertices[i].y) for i in range(len(text.bounding_poly.vertices))]
+            xy = [(text.bounding_poly.vertices[i].x, text.bounding_poly.vertices[i].y) for i in
+                  range(len(text.bounding_poly.vertices))]
             poly = Polygon(xy)
             if self.containsObject(poly):
                 containedTexts.append((text.bounding_poly.vertices[0].x, text))

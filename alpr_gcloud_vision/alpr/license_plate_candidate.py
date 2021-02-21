@@ -5,14 +5,23 @@ from util.paths import city_ids_path as file_path
 
 
 class LicensePlateCandidate:
+    '''
+    Class to check whether a license plate text is a valid license plate number and format it correctly.
+    @param text: license plate text
+    @param city_IDs_df: pandas dataframe containing the valid city acronyms
+    '''
 
-    def __init__(self, text, object_ = None, city_IDs_df = pd.read_csv(file_path, delimiter=';')):
+    def __init__(self, text, city_IDs_df=pd.read_csv(file_path, delimiter=';')):
         self.text = text
-        self.object_ = object_
         self.city_IDs_df = city_IDs_df
         self.license_plate_no = ''
 
     def remove_annotation_errors(self, license_plate_no):
+        '''
+        Remove certain mistakes that occur frequently within google vision apis text recognition.
+        @param license_plate_no: license plate number
+        @return: license plate number without typical annotation errors
+        '''
         license_plate_no = license_plate_no.replace('&', ' ')
         license_plate_no = license_plate_no.replace('i', ' ')
         license_plate_no = license_plate_no.replace('.', ' ')
@@ -24,15 +33,25 @@ class LicensePlateCandidate:
         license_plate_no = license_plate_no.replace('.', ' ')
         license_plate_no = license_plate_no.replace(';', ' ')
         license_plate_no = license_plate_no.replace('  ', ' ')
-        # TODO: add more
 
         return license_plate_no
 
     def _city_ID_exists(self, city_ID):
+        '''
+        Check whether city acronym does exist.
+        @param city_ID: city acronym
+        @return: True if city acronym does exist
+        '''
         return (self.city_IDs_df['Abk.'] == city_ID).any()
 
     def _split_part1(self, part1, min_len, max_len):
-
+        '''
+        Split first part of license plate text that contains the city acronym and the other letters on the license plate.
+        @param part1: string that contains the city acronym and the other letters on the license plate.
+        @param min_len: minimal length allowed
+        @param max_len: maximal length allowed
+        @return: tuple of strings; the first one is containing the city acronym and the second one is containing the other letters
+        '''
         if len(part1) == 2 and min_len == 2:
             # split 1 - 1
             city_ID, driver_ID_letters = list(part1)
@@ -45,7 +64,7 @@ class LicensePlateCandidate:
             city_ID = part1[0]
             driver_ID_letters = part1[1:]
 
-            # does city_ID exist in database?
+            # check if city acronym exists in the database
             if self._city_ID_exists(city_ID):
                 return city_ID, driver_ID_letters
             else:
@@ -79,7 +98,11 @@ class LicensePlateCandidate:
             return city_ID, driver_ID_letters
 
     def _split_1_blank(self, license_plate_no):
-
+        '''
+        Split and check a license plate text that already contains one whitespace and is missing another one.
+        @param license_plate_no: license plate text containing one whitespace
+        @return: tuple of license plate text containing two whitespaces, True or False whether license plate number is valid, and the error message
+        '''
         part1, part2 = license_plate_no.split()
 
         if part2.isdigit():
@@ -99,11 +122,15 @@ class LicensePlateCandidate:
 
         license_plate_no = city_ID + ' ' + driver_ID_letters + ' ' + driver_ID_digits + self.last_sign
 
-        # does city_ID exist in database?
+        # check if city acronym exists in the database
         return license_plate_no, self._city_ID_exists(city_ID), 'city_ID does not exist in the database'
 
     def _split_no_blanks(self, license_plate_no):
-
+        '''
+        Split and check a license plate text that does not yet contain any whitespaces.
+        @param license_plate_no: license plate text
+        @return: tuple of license plate text containing two whitespaces, True or False whether license plate number is valid, and the error message
+        '''
         if len(license_plate_no) == 3:
 
             city_ID, driver_ID_letters, driver_ID_digits = list(license_plate_no)
@@ -152,6 +179,10 @@ class LicensePlateCandidate:
         return license_plate_no, self._city_ID_exists(city_ID), 'city_ID does not exist in the database'
 
     def checkCandidate(self):
+        '''
+        Check whether a license plate text is a valid license plate number.
+        @return: True if license plate text is a valid license plate number
+        '''
 
         self.last_sign = ''
 

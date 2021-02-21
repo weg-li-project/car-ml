@@ -6,11 +6,17 @@ from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout
 
 
 class CNN(tf.keras.models.Sequential):
+    '''
+    CNN class to recognize letters on license plates.
+    '''
 
     def __init__(self):
         super().__init__()
 
     def create_model(self):
+        '''
+        Create the cnn model.
+        '''
         self.add(Conv2D(32, kernel_size=5, padding='same', activation='relu', input_shape=(40, 24, 1)))
         self.add(MaxPool2D())
         self.add(Conv2D(40, kernel_size=5, padding='same', activation='relu'))
@@ -26,6 +32,13 @@ class CNN(tf.keras.models.Sequential):
 
 
 def train(data_dir, checkpoint_dir, epochs=5, patience=5):
+    '''
+    Training loop to train the cnn for letter recognition.
+    @param data_dir: the directory where the data is located
+    @param checkpoint_dir: the directory where the model is saved to or loaded from in case there is an existing model already
+    @param epochs: the number of epochs to train
+    @param patience: the number of epochs to wait after training did not get better
+    '''
     batch_size = 32
     img_height = 40
     img_width = 24
