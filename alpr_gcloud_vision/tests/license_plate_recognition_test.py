@@ -74,38 +74,8 @@ class TestLicensePlateRecognition(unittest.TestCase):
 
     def testImg4(self):
 
-        bool = self.__check_correct_license_plate__(3)
-        assert bool, 'testImg4 failed'
-
-    def testImg5(self):
-
-        bool = self.__check_correct_license_plate__(4)
-        assert bool, 'testImg5 failed'
-
-    def testImg6(self):
-
-        bool = self.__check_correct_license_plate__(5)
-        assert bool, 'testImg6 failed'
-
-    def testImg7(self):
-
         bool = self.__check_correct_license_plate__(6)
         assert bool, 'testImg7 failed'
-
-    def testImg8(self):
-
-        bool = self.__check_correct_license_plate__(7)
-        assert bool, 'testImg8 failed'
-
-    def testImg9(self):
-
-        bool = self.__check_correct_license_plate__(8)
-        assert bool, 'testImg9 failed'
-
-    def testImg10(self):
-
-        bool = self.__check_correct_license_plate__(9)
-        assert bool, 'testImg10 failed'
 
     def testAllImages(self):
         total = 0
