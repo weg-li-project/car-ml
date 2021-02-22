@@ -2,3 +2,4 @@ pytest==6.2.2
 pytest-cov==2.11.1
 pytest-env==0.6.2
 behave==1.2.6
+locust==1.4.3
