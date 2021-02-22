@@ -1,19 +1,7 @@
-from google.cloud import vision
 from PIL import Image
 
 from alpr_gcloud_vision.alpr.object_detection import DetectedObject
 from alpr_gcloud_vision.alpr.license_plate_candidate import LicensePlateCandidate
-
-
-def text_annotation(img_path):
-    client = vision.ImageAnnotatorClient()
-
-    with open(img_path, 'rb') as image_file:
-        content = image_file.read()
-    image = vision.Image(content=content)
-    response = client.text_detection(image=image)
-    texts = response.text_annotations
-    return texts
 
 
 def recognize_license_plate(img_path, objects, texts):
@@ -39,6 +27,10 @@ def recognize_license_plate(img_path, objects, texts):
         if detected_object.isObject('License plate'):
             license_plates.append(detected_object)
 
+    # if no text was found on the picture return empty list
+    if len(texts) == 0:
+        return []
+
     license_plate_nos = []
 
     # check if license plate objects were detected by google vision api
@@ -54,10 +46,6 @@ def recognize_license_plate(img_path, objects, texts):
 
             if res:
                 license_plate_nos.append(license_plate_no)
-
-    # if no text was found
-    if len(texts) == 0:
-        return []
 
     # evaluate the whole text and check for license plate candidates
     text_list = texts[0].description.split('\n')
