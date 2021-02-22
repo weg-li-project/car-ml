@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
-from google.cloud import vision
 
 
 class DetectedObject:
@@ -21,7 +19,6 @@ class DetectedObject:
         self.Polygon = self._compute_Poly()
         # ulc: upper left corner, urc : upper right corner, lrc : lower right corner, llc : lower left corner
         self.ulc, self.urc, self.lrc, self.llc = self._get_corners()
-        self.Polygon_area = self._calculate_Poly_area()
 
     def _get_normalized_corners(self):
         '''
@@ -62,14 +59,9 @@ class DetectedObject:
         @return: polygon
         '''
         img_width, img_height = self.img.size[:2]
-        return Polygon(np.stack((self.Polygon_normalized.get_xy()[:, 0] * img_width, self.Polygon_normalized.get_xy()[:, 1] * img_height), axis=1))
-
-    def _calculate_Poly_area(self):
-        a = 0.0
-        corners = [self.ulc, self.urc, self.lrc, self.llc]
-        for i in range(4):
-            a += (corners[i][1] + corners[(i+1) % 4][1]) * (corners[i][0] - corners[(i+1) % 4][0])
-        return abs(a) / 2.0
+        return Polygon(np.stack(
+            (self.Polygon_normalized.get_xy()[:, 0] * img_width, self.Polygon_normalized.get_xy()[:, 1] * img_height),
+            axis=1))
 
     def isObject(self, object_name):
         '''
@@ -141,34 +133,8 @@ class DetectedObject:
 
         return output_text
 
-    def isBigger(self, other):
-        if self.Polygon_area > other.Polygon_area:
-            return True
-        else:
-            return False
-
     def get_Polygon(self):
         return self.Polygon
 
     def get_normalized_Polygon(self):
         return self.Polygon_normalized
-
-    def plot_Polygon_img(self, img):
-        fig = plt.figure()
-        ax = fig.add_subplot(111, aspect='equal')
-
-        ax.imshow(img)
-        ax.add_patch(self.Polygon)
-        plt.show()
-
-
-def localize_objects(img_path):
-    client = vision.ImageAnnotatorClient()
-
-    with open(img_path, 'rb') as image_file:
-        content = image_file.read()
-    image = vision.Image(content=content)
-
-    objects = client.object_localization(image=image).localized_object_annotations
-
-    return objects
