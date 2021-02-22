@@ -7,10 +7,12 @@ from werkzeug.exceptions import (BadRequest, MethodNotAllowed,
 
 from alpr_gcloud_vision.core.annotations import get_images_from_gcs_uris
 from util.adapter import detect_car_attributes
+from util.paths import checkpoints_path
 from util.transforms import to_json_suggestions
 from yolo_cnn.load import load_models
 
-LOADED_MODELS: Final = load_models()
+if os.path.exists(checkpoints_path):
+    LOADED_MODELS: Final = load_models()
 PROP_NAME: Final = 'google_cloud_urls'
 
 
