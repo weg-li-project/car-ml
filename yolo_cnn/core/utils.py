@@ -1,9 +1,5 @@
-import os
-import cv2
 import numpy as np
-import tensorflow as tf
 import pandas as pd
-from tqdm.auto import tqdm
 
 from util.paths import car_brands_filepath, car_colors_filepath
 
@@ -126,23 +122,6 @@ def get_keys_car_color():
     keys = list(car_brands.values[:, 0])
     return keys
 
-def load_letter_data(img_dir):
-    imgs = []
-    labels = []
-    dict = get_dict_alpr()
-    img_subdirs = [img_dir + '/' + 'letters_' + key for key in dict.keys()]
-    for img_subdir in tqdm(img_subdirs, desc='load data'):
-        for i, file in enumerate(os.listdir(img_subdir)):
-            if file.endswith('.jpg'):
-                    labels.append(file.replace('.jpg', '')[-1])
-                    img = cv2.imread(img_subdir + '/' + file, 0)
-                    img = cv2.resize(img, dsize=(24,40))
-                    imgs.append(tf.convert_to_tensor(img))
-
-    X = np.stack(imgs)
-    y = np.asarray([(x in dict.keys() and dict[x]) for x in labels])
-
-    return X, y
 
 def read_class_names(class_file_name):
     '''
