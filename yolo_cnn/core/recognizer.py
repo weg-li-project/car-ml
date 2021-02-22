@@ -367,42 +367,39 @@ def analyze_box(image, pred_bboxes, cnn_alpr, cnn_car_rec, cnn_color_rec, info=F
     image_h, image_w, _ = image.shape
     bboxes, scores, out_classes, num_boxes = pred_bboxes
     plate_numbers, car_brands, car_colors = [], [], []
-    print(num_classes)
     for i in range(num_boxes):
 
-        if int(out_classes[i]) < 0 or int(out_classes[i]) > num_classes:
-            continue
+        if int(out_classes[i]) >= 0 and int(out_classes[i]) <= num_classes:
 
-        coords = bboxes[i]
-        score = scores[i]
-        class_idx = int(out_classes[i])
-        class_name = classes[class_idx]
+            coords = bboxes[i]
+            score = scores[i]
+            class_idx = int(out_classes[i])
+            class_name = classes[class_idx]
 
-        if info:
-            print(
-                "Object found: {}, Confidence: {:.2f}, BBox Coords (xmin, ymin, xmax, ymax): {}, {}, {}, {} ".format(
+            if info:
+                print("Object found: {}, Confidence: {:.2f}, BBox Coords (xmin, ymin, xmax, ymax): {}, {}, {}, {} ".format(
                     class_name, score, coords[0], coords[1], coords[2], coords[3]))
 
-        if case == 'PLATE' and class_name == 'license_plate':
-            # recognize license plate number that is contained in the bounding box
-            plate_number = _recognize_lp_box(image, coords, cnn_alpr)
-            plate_numbers.append(plate_number)
+            if case == 'PLATE' and class_name == 'license_plate':
+                # recognize license plate number that is contained in the bounding box
+                plate_number = _recognize_lp_box(image, coords, cnn_alpr)
+                plate_numbers.append(plate_number)
 
-        elif case == 'CAR' and class_name == 'car' or class_name == 'truck':
+            elif case == 'CAR' and class_name == 'car' or class_name == 'truck':
 
-            # sort out boxes of wrong size to be a vehicle
-            xmin, ymin, xmax, ymax = coords[0], coords[1], coords[2], coords[3]
-            box_width, box_height = xmax - xmin, ymax - ymin
-            if image_h * 0.12 <= box_height and image_w * 0.12 <= box_width:
+                # sort out boxes of wrong size to be a vehicle
+                xmin, ymin, xmax, ymax = coords[0], coords[1], coords[2], coords[3]
+                box_width, box_height = xmax - xmin, ymax - ymin
+                if image_h * 0.12 <= box_height and image_w * 0.12 <= box_width:
 
-                # test if any license plate was found and if so car bounding box contains any license plate
-                if pred_bboxes_lp and pred_bboxes_lp[3] != 0 and not containsLP(coords, pred_bboxes_lp):
-                    continue
-                # recognize car brand and car color of the car contained in the bounding box
-                car_brand, car_color = _recognize_car_box(image, coords, cnn_car_rec, cnn_color_rec)
-                # add car brand and car color to lists if they are not already contained
-                if car_brand not in car_brands: car_brands.append(car_brand)
-                if car_color not in car_colors: car_colors.append(car_color)
+                    # test if any license plate was found and if so car bounding box contains any license plate
+                    if pred_bboxes_lp and pred_bboxes_lp[3] != 0 and not containsLP(coords, pred_bboxes_lp):
+                        continue
+                    # recognize car brand and car color of the car contained in the bounding box
+                    car_brand, car_color = _recognize_car_box(image, coords, cnn_car_rec, cnn_color_rec)
+                    # add car brand and car color to lists if they are not already contained
+                    if car_brand not in car_brands: car_brands.append(car_brand)
+                    if car_color not in car_colors: car_colors.append(car_color)
 
     if case == 'PLATE':
         return image, plate_numbers
