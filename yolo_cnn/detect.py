@@ -156,7 +156,7 @@ def main(uris, imgs, yolo_lp_model_path=yolo_lp_model_path, yolo_car_model_path=
          cnn_alpr_model_path=cnn_alpr_model_path, cnn_color_rec_model_path=cnn_color_rec_model_path,
          cnn_car_rec_model_path=cnn_car_rec_model_path):
     '''
-
+    Main method to detect the license plates and cars in the images and recognize the license plate numbers and the car colors and brands
     @param uris: image paths in google cloud storage
     @param imgs: images
     @param yolo_lp_model_path: path to yolo model trained for license plate detection
