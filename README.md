@@ -116,8 +116,7 @@ Response Body
 
 ## Retraining the networks
 
-For retraining the car color recognition or car make recognition you have to arrange your data using the following
-structure:
+For retraining any of the models you have to arrange your data using the following structure further explained [here](https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image_dataset_from_directory):
 
       main_directory/
       ...class_a/

@@ -107,6 +107,6 @@ class TestPerformance(unittest.TestCase):
         precision_colors = correct_colors / num_charges
         print(f"Color detection precision: {precision_colors}")
 
-        self.assertTrue(precision_license_plate_numbers > 0.38)
+        self.assertTrue(precision_license_plate_numbers > 0.80)
         self.assertTrue(precision_makes > 0.90)
-        self.assertTrue(precision_colors > 0.75)
+        self.assertTrue(precision_colors > 0.80)

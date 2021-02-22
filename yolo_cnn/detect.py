@@ -1,4 +1,3 @@
-
 import io
 import os
 import numpy as np
@@ -11,9 +10,10 @@ from yolo_cnn.core.recognizer import analyze_box
 from yolo_cnn.core.cnn import CNN as CNN_alpr
 from yolo_cnn.core.cnn_resnet152 import resnet152_model
 
-from util.paths import yolo_lp_model_path, yolo_car_model_path, cnn_alpr_model_path, cnn_color_rec_model_path, cnn_car_rec_model_path
+from util.paths import yolo_lp_model_path, yolo_car_model_path, cnn_alpr_model_path, cnn_color_rec_model_path, \
+    cnn_car_rec_model_path
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # comment out below line to enable tensorflow outputs
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # comment out below line to enable tensorflow outputs
 
 yolo_lp = None
 yolo_car = None
@@ -21,8 +21,18 @@ cnn_alpr = None
 cnn_color_rec = None
 cnn_car_rec = None
 
-def load_models(yolo_lp_model_path: str, yolo_car_model_path: str, cnn_alpr_checkpoint_path: str, cnn_color_rec_checkpoint_path: str, cnn_car_rec_checkpoint_path: str):
-    """Load models and preserve them in memory for subsequent calls."""
+
+def load_models(yolo_lp_model_path: str, yolo_car_model_path: str, cnn_alpr_checkpoint_path: str,
+                cnn_color_rec_checkpoint_path: str, cnn_car_rec_checkpoint_path: str):
+    '''
+    Load models and preserve them in memory for subsequent calls.
+    @param yolo_lp_model_path: path to yolo model trained for license plate detection
+    @param yolo_car_model_path: path to yolo model trained for car detection
+    @param cnn_alpr_checkpoint_path: path to cnn model trained for letter recognition on license plates
+    @param cnn_color_rec_checkpoint_path: path to resnet152 model trained for car color recognition
+    @param cnn_car_rec_checkpoint_path: path to resnet152 model model trained for car brand recognition
+    @return: tuple containing the yolo model trained for license plate detection, the yolo model trained for car detection, the cnn model trained for letter recognition on license plates, the resnet152 model trained for car color recognition, and the resnet152 model trained for car brand recognition
+    '''
 
     # Load yolo lp model
     global yolo_lp
@@ -44,13 +54,13 @@ def load_models(yolo_lp_model_path: str, yolo_car_model_path: str, cnn_alpr_chec
     # Load cnn color rec model
     global cnn_color_rec
     if not cnn_color_rec:
-        cnn_color_rec = resnet152_model(img_rows=224, img_cols=224, color_type=3, num_classes=10, new_model=False)
+        cnn_color_rec = resnet152_model(img_height=224, img_width=224, color_type=3, num_classes=10, new_model=False)
         cnn_color_rec.load_weights(cnn_color_rec_checkpoint_path)
 
     # Load cnn car rec model
     global cnn_car_rec
     if not cnn_car_rec:
-        cnn_car_rec = resnet152_model(img_rows=224, img_cols=224, color_type=3, num_classes=70, new_model=False)
+        cnn_car_rec = resnet152_model(img_height=224, img_width=224, color_type=3, num_classes=70, new_model=False)
         cnn_car_rec.load_weights(cnn_car_rec_checkpoint_path)
 
     return yolo_lp, yolo_car, cnn_alpr, cnn_color_rec, cnn_car_rec
@@ -60,27 +70,33 @@ physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-def detect_object(image, yolo, threshold):
-    input_size = 416
 
-    original_image = cv2.imdecode(np.frombuffer(io.BytesIO(image).read(), np.uint8), cv2.IMREAD_COLOR)
-    original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-
-    image_data = cv2.resize(original_image, (input_size, input_size))
-    image_data = image_data / 255.
-
-    images_data = np.asarray([image_data]).astype(np.float32)
+def detect_object(img, yolo, threshold):
+    '''
+    Detect specific object in image.
+    @param img: image
+    @param yolo: yolo model trained to detect specific object
+    @param threshold: threshold for yolo detection score, all detections with a confidence below the threshold are rejected
+    @return: tuple containing the image and the bounding boxes of the detected objects
+    '''
+    # load, convert and normalize image
+    img = cv2.imdecode(np.frombuffer(io.BytesIO(img).read(), np.uint8), cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img_data = cv2.resize(img, (416, 416))
+    img_data = img_data / 255.
+    images_data = np.asarray([img_data]).astype(np.float32)
 
     infer = yolo.signatures['serving_default']
     batch_data = tf.constant(images_data)
+    # detect objects in image using the yolo model
     pred_bboxes = infer(batch_data)
     for key, value in pred_bboxes.items():
-        boxes = value[:, :, 0:4]
+        bboxes = value[:, :, 0:4]
         pred_conf = value[:, :, 4:]
 
     # run non max suppression on detections
-    boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
-        boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
+    bboxes, scores, classes, num_detections = tf.image.combined_non_max_suppression(
+        boxes=tf.reshape(bboxes, (tf.shape(bboxes)[0], -1, 1, 4)),
         scores=tf.reshape(pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
         max_output_size_per_class=50,
         max_total_size=50,
@@ -88,39 +104,83 @@ def detect_object(image, yolo, threshold):
         score_threshold=threshold
     )
 
-    # format bounding boxes from normalized ymin, xmin, ymax, xmax ---> xmin, ymin, xmax, ymax
-    original_h, original_w, _ = original_image.shape
-    bboxes = format_boxes(boxes.numpy()[0], original_h, original_w)
+    # format bounding boxes from normalized ymin, xmin, ymax, xmax to xmin, ymin, xmax, ymax in image format
+    img_h, img_w, _ = img.shape
+    bboxes = format_boxes(bboxes.numpy()[0], img_h, img_w)
 
     # hold all detection data in one variable
-    pred_bboxes = [bboxes, scores.numpy()[0], classes.numpy()[0], valid_detections.numpy()[0]]
+    pred_bboxes = [bboxes, scores.numpy()[0], classes.numpy()[0], num_detections.numpy()[0]]
 
-    return original_image, pred_bboxes
+    return img, pred_bboxes
 
-def detect_recognize_plate(cnn_alpr, cnn_car_rec, cnn_color_rec, img_path, image, yolo, info=False):
-    original_image, pred_bbox = detect_object(image, yolo, threshold=0.5)
-    image, recognized_plate_numbers = analyze_box(original_image, pred_bbox, cnn_alpr, cnn_car_rec, cnn_color_rec, info=info, case='PLATE')
+
+def detect_recognize_plate(cnn_alpr, cnn_car_rec, cnn_color_rec, img_path, img, yolo, info=False):
+    '''
+    Detect the license plates in the image and recognize the license plate numbers.
+    @param cnn_alpr: cnn model trained for letter recognition on license plates
+    @param cnn_car_rec: resnet152 model trained for car brand recognition
+    @param cnn_color_rec: resnet152 model trained for car color recognition
+    @param img_path: image paths
+    @param img: image object
+    @param yolo: yolo model trained for license plate detection
+    @param info: whether or not some information should be displayed
+    @return: dictionary containing the license plate numbers detected and recognized on the images and the bounding boxes of those license plates
+    '''
+    img, pred_bboxes_lp = detect_object(img, yolo, threshold=0.5)
+    img, recognized_plate_numbers = analyze_box(img, pred_bboxes_lp, cnn_alpr, cnn_car_rec, cnn_color_rec, info=info,
+                                                case='PLATE')
     plate_numbers_dict = {img_path: recognized_plate_numbers}
-    return plate_numbers_dict, pred_bbox
+    return plate_numbers_dict, pred_bboxes_lp
 
-def detect_recognize_car(cnn_alpr, cnn_car_rec, cnn_color_rec, img_path, image, yolo, lp_boxes, info=False):
-    original_image, pred_bbox = detect_object(image, yolo, threshold=0.5)
-    image, (car_brands, car_colors) = analyze_box(original_image, pred_bbox, cnn_alpr, cnn_car_rec, cnn_color_rec, info=info, case='CAR', lp_boxes=lp_boxes)
+
+def detect_recognize_car(cnn_alpr, cnn_car_rec, cnn_color_rec, img_path, img, yolo, pred_bboxes_lp, info=False):
+    '''
+    Detect the cars in the image and recognize the car brands and car colors.
+    @param cnn_alpr: cnn model trained for letter recognition on license plates
+    @param cnn_car_rec: resnet152 model trained for car brand recognition
+    @param cnn_color_rec: resnet152 model trained for car color recognition
+    @param img_path: image paths
+    @param img: image object
+    @param yolo: yolo model trained for car detection
+    @param pred_bboxes_lp: bounding boxes of detected license plates in the image
+    @param info: whether or not some information should be displayed
+    @return: tuple of lists containing the car brands and car colors
+    '''
+    img, pred_bboxes_car = detect_object(img, yolo, threshold=0.5)
+    img, (car_brands, car_colors) = analyze_box(img, pred_bboxes_car, cnn_alpr, cnn_car_rec, cnn_color_rec, info=info,
+                                                case='CAR', pred_bboxes_lp=pred_bboxes_lp)
     return car_brands, car_colors
 
-def main(uris, images, yolo_lp=yolo_lp_model_path, yolo_car=yolo_car_model_path, cnn_alpr=cnn_alpr_model_path, cnn_color_rec=cnn_color_rec_model_path, cnn_car_rec=cnn_car_rec_model_path):
+
+def main(uris, imgs, yolo_lp_model_path=yolo_lp_model_path, yolo_car_model_path=yolo_car_model_path,
+         cnn_alpr_model_path=cnn_alpr_model_path, cnn_color_rec_model_path=cnn_color_rec_model_path,
+         cnn_car_rec_model_path=cnn_car_rec_model_path):
+    '''
+    Main method to detect the license plates and cars in the images and recognize the license plate numbers and the car colors and brands
+    @param uris: image paths in google cloud storage
+    @param imgs: images
+    @param yolo_lp_model_path: path to yolo model trained for license plate detection
+    @param yolo_car_model_path: path to yolo model trained for car detection
+    @param cnn_alpr_checkpoint_path: path to cnn model trained for letter recognition on license plates
+    @param cnn_color_rec_checkpoint_path: path to resnet152 model trained for car color recognition
+    @param cnn_car_rec_checkpoint_path: path to resnet152 model model trained for car brand recognition
+    @return:
+    '''
     # Load models
-    cnn_alpr = tf.train.latest_checkpoint(os.path.dirname(cnn_alpr))
-    cnn_color_rec = tf.train.latest_checkpoint(os.path.dirname(cnn_color_rec))
-    cnn_car_rec = tf.train.latest_checkpoint(os.path.dirname(cnn_car_rec))
-    yolo_lp, yolo_car, cnn_alpr, cnn_color_rec, cnn_car_rec = load_models(yolo_lp, yolo_car, cnn_alpr, cnn_color_rec, cnn_car_rec)
+    cnn_alpr = tf.train.latest_checkpoint(os.path.dirname(cnn_alpr_model_path))
+    cnn_color_rec = tf.train.latest_checkpoint(os.path.dirname(cnn_color_rec_model_path))
+    cnn_car_rec = tf.train.latest_checkpoint(os.path.dirname(cnn_car_rec_model_path))
+    yolo_lp, yolo_car, cnn_alpr, cnn_color_rec, cnn_car_rec = load_models(yolo_lp_model_path, yolo_car_model_path,
+                                                                          cnn_alpr, cnn_color_rec, cnn_car_rec)
 
     plate_numbers_dict = {}
     car_brands_dict = {}
     car_colors_dict = {}
-    for index, img in enumerate(images):
-        plate_numbers, lp_boxes = detect_recognize_plate(cnn_alpr, cnn_car_rec, cnn_color_rec, uris[index], img, yolo_lp)
-        car_brands, car_colors = detect_recognize_car(cnn_alpr, cnn_car_rec, cnn_color_rec, uris[index], img, yolo_car, lp_boxes)
+    for index, img in enumerate(imgs):
+        plate_numbers, pred_bboxes_lp = detect_recognize_plate(cnn_alpr, cnn_car_rec, cnn_color_rec, uris[index], img,
+                                                               yolo_lp)
+        car_brands, car_colors = detect_recognize_car(cnn_alpr, cnn_car_rec, cnn_color_rec, uris[index], img, yolo_car,
+                                                      pred_bboxes_lp)
         plate_numbers_dict.update(plate_numbers)
         car_brands_dict.update({uris[index]: car_brands})
         car_colors_dict.update({uris[index]: car_colors})

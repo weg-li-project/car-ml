@@ -1,16 +1,22 @@
-
 import os
+import sys
+import argparse as arg
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout
-from sklearn.model_selection import train_test_split
-from yolo_cnn.core.utils import load_letter_data
+
 
 class CNN(tf.keras.models.Sequential):
+    '''
+    CNN class to recognize letters on license plates.
+    '''
 
     def __init__(self):
         super().__init__()
 
     def create_model(self):
+        '''
+        Create the cnn model.
+        '''
         self.add(Conv2D(32, kernel_size=5, padding='same', activation='relu', input_shape=(40, 24, 1)))
         self.add(MaxPool2D())
         self.add(Conv2D(40, kernel_size=5, padding='same', activation='relu'))
@@ -24,28 +30,47 @@ class CNN(tf.keras.models.Sequential):
 
         self.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
+
 def train(data_dir, checkpoint_dir, epochs=5, patience=5):
-    data_dir = data_dir
-    X, y = load_letter_data(data_dir)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
-    X_train, y_train = tf.convert_to_tensor(X_train, dtype=tf.float32), tf.convert_to_tensor(y_train, dtype=tf.float32)
-    X_test, y_test = tf.convert_to_tensor(X_test, dtype=tf.float32), tf.convert_to_tensor(y_test, dtype=tf.float32)
-    X_train, X_test = X_train / 255.0, X_test / 255.0
-
-    # Add a channels dimension
-    X_train = X_train[..., tf.newaxis]
-    X_test = X_test[..., tf.newaxis]
-
+    '''
+    Training loop to train the cnn for letter recognition.
+    @param data_dir: the directory where the data is located
+    @param checkpoint_dir: the directory where the model is saved to or loaded from in case there is an existing model already
+    @param epochs: the number of epochs to train
+    @param patience: the number of epochs to wait after training did not get better
+    '''
     batch_size = 32
+    img_height = 40
+    img_width = 24
 
-    train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train)).shuffle(X_train.shape[0]).batch(batch_size)
-    test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(batch_size)
+    train_ds = tf.keras.preprocessing.image_dataset_from_directory(
+        data_dir,
+        validation_split=0.2,
+        color_mode='grayscale',
+        subset="training",
+        seed=123,
+        image_size=(img_height, img_width),
+        batch_size=batch_size
+    )
+
+    val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+        data_dir,
+        validation_split=0.2,
+        color_mode='grayscale',
+        subset="validation",
+        seed=123,
+        image_size=(img_height, img_width),
+        batch_size=batch_size
+    )
+
+    normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1. / 255)
+    train_ds_normalized = train_ds.map(lambda x, y: (normalization_layer(x), y))
+    val_ds_normalized = val_ds.map(lambda x, y: (normalization_layer(x), y))
 
     model = CNN()
     model.create_model()
 
     latest = tf.train.latest_checkpoint(os.path.dirname(checkpoint_dir))
-    checkpoint_dir = checkpoint_dir
     try:
         model.load_weights(latest)
     except:
@@ -64,9 +89,27 @@ def train(data_dir, checkpoint_dir, epochs=5, patience=5):
     # Create a callback for early stopping
     es_callback = tf.keras.callbacks.EarlyStopping(
         monitor='val_accuracy',
-        patience=5,
+        patience=patience,
         verbose=1)
 
     model.summary()
 
-    model.fit(train_ds, validation_data=test_ds, epochs=epochs, callbacks=[cp_callback, es_callback])
+    model.fit(train_ds_normalized, validation_data=val_ds_normalized, epochs=epochs,
+              callbacks=[cp_callback, es_callback])
+
+
+def main(argv):
+    parser = arg.ArgumentParser(description='Train the model.')
+    parser.add_argument('--data_dir', metavar='<directory>', type=str, help='the data directory', required=True)
+    parser.add_argument('--checkpoint_dir', metavar='<directory>', type=str, help='the checkpoint directory',
+                        required=True)
+    parser.add_argument('--epochs', metavar='<number>', type=int, help='the number of epochs to train', required=True)
+    parser.add_argument('--patience', metavar='<number>', type=int,
+                        help='the number of epochs to wait after training did not get better', required=True)
+    args = parser.parse_args()
+
+    train(data_dir=args.data_dir, checkpoint_dir=args.checkpoint_dir, epochs=args.epochs, patience=args.patience)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

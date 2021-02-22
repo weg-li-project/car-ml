@@ -2,19 +2,22 @@ import unittest
 
 from alpr_gcloud_vision.alpr.license_plate_candidate import LicensePlateCandidate
 
+
 class TestLicensePlateCandidate(unittest.TestCase):
 
     def testCheckCandidateRemovedLeadingWhiteSpaces(self):
         text = ' B MW 1234'
         lpc = LicensePlateCandidate(text)
-        _, res, msg = lpc.checkCandidate()
-        # TODO: assert
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'B MW 1234', msg
+        assert res, 'testCheckCandidateRemovedLeadingWhiteSpaces failed'
 
     def testCheckCandidateRemovedTrailingWhiteSpaces(self):
         text = 'B MW 1234 '
         lpc = LicensePlateCandidate(text)
-        _, res, msg = lpc.checkCandidate()
-        # TODO: assert
+        license_plate_no, res, msg = lpc.checkCandidate()
+        assert license_plate_no == 'B MW 1234', msg
+        assert res, 'testCheckCandidateRemovedTrailingWhiteSpaces failed'
 
     def testCheckCandidateEV(self):
         text = 'B MW 1234E'
@@ -112,7 +115,7 @@ class TestLicensePlateCandidate(unittest.TestCase):
         assert res, msg
 
     def testCheckCandidate1Blank2(self):
-        text = 'IGBA 123' # there is no city IG
+        text = 'IGBA 123'  # there is no city IG
         lpc = LicensePlateCandidate(text)
         license_plate_no, res, msg = lpc.checkCandidate()
         assert license_plate_no == 'IGB A 123', 'testCheckCandidate1Blank2 failed'
@@ -203,6 +206,7 @@ class TestLicensePlateCandidate(unittest.TestCase):
         license_plate_no, res, msg = lpc.checkCandidate()
         assert license_plate_no == 'SÜW G 123', 'testRemoveAnnotationErrors failed'
         assert res, msg
+
 
 if __name__ == '__main__':
     unittest.main()

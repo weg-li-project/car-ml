@@ -74,38 +74,8 @@ class TestLicensePlateRecognition(unittest.TestCase):
 
     def testImg4(self):
 
-        bool = self.__check_correct_license_plate__(3)
-        assert bool, 'testImg4 failed'
-
-    def testImg5(self):
-
-        bool = self.__check_correct_license_plate__(4)
-        assert bool, 'testImg5 failed'
-
-    def testImg6(self):
-
-        bool = self.__check_correct_license_plate__(5)
-        assert bool, 'testImg6 failed'
-
-    def testImg7(self):
-
         bool = self.__check_correct_license_plate__(6)
         assert bool, 'testImg7 failed'
-
-    def testImg8(self):
-
-        bool = self.__check_correct_license_plate__(7)
-        assert bool, 'testImg8 failed'
-
-    def testImg9(self):
-
-        bool = self.__check_correct_license_plate__(8)
-        assert bool, 'testImg9 failed'
-
-    def testImg10(self):
-
-        bool = self.__check_correct_license_plate__(9)
-        assert bool, 'testImg10 failed'
 
     def testAllImages(self):
         total = 0
@@ -139,7 +109,8 @@ class TestLicensePlateRecognition(unittest.TestCase):
                 total += 1
 
                 if len(license_plate_nos) == 0:
-                    print(colored('recognized license_plate_no: ' + str([]) + '\t' + self.charges_df['registration'][idx] + ' is the actual license_plate_no' + '\t' + str(red), 'red'))
+                    print(colored('recognized license_plate_no: ' + str([]) + '\t' + self.charges_df['registration'][
+                        idx] + ' is the actual license_plate_no' + '\t' + str(red), 'red'))
                     red += 1
                     zeros += 1
                 else:
@@ -147,11 +118,15 @@ class TestLicensePlateRecognition(unittest.TestCase):
                         if license_plate_no == self.charges_df['registration'][idx]:
                             res[index] = 1
                             green += 1
-                            print(colored('recognized license_plate_no: ' + license_plate_no + '\t' + self.charges_df['registration'][idx] + ' is the actual license_plate_no' + '\t' + str(green), 'green'))
+                            print(colored('recognized license_plate_no: ' + license_plate_no + '\t' +
+                                          self.charges_df['registration'][
+                                              idx] + ' is the actual license_plate_no' + '\t' + str(green), 'green'))
                     if res[index] == 0:
                         for license_plate_no in license_plate_nos:
                             red += 1
-                            print(colored('recognized license_plate_no: ' + license_plate_no + '\t' + self.charges_df['registration'][idx] + ' is the actual license_plate_no' + '\t' + str(red), 'red'))
+                            print(colored('recognized license_plate_no: ' + license_plate_no + '\t' +
+                                          self.charges_df['registration'][
+                                              idx] + ' is the actual license_plate_no' + '\t' + str(red), 'red'))
 
         print('percentage: {}'.format(np.sum(res) / total))
         assert np.sum(res) / total >= 0.5, 'percentage smaller than 50%'

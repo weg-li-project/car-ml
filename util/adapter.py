@@ -16,7 +16,7 @@ def detect_car_attributes(
     images = [data[1] for data in image_data]
 
     plate_numbers_dict, car_brands_dict, car_colors_dict = alpr_yolo_cnn_main(
-        uris=uris, images=images
+        uris=uris, imgs=images
     )
 
     print('detect_car_attributes method : {}'.format(plate_numbers_dict))
