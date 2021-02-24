@@ -18,44 +18,38 @@ IMAGES: Final = {
 
 
 class ImageAnalysisUser(HttpUser):
-    @tag('small', 'one')
+    @tag("small", "one")
     @task(2)
     def one_small_image(self):
-        self.client.headers.setdefault("Content-Type", "application/json")
         body = {"google_cloud_urls": [IMAGES["small"][0]]}
         self.client.post("/", json=body)
 
-    @tag('big', 'one')
+    @tag("big", "one")
     @task(2)
     def one_big_image(self):
-        self.client.headers.setdefault("Content-Type", "application/json")
         body = {"google_cloud_urls": [IMAGES["big"][0]]}
         self.client.post("/", json=body)
 
-    @tag('small', 'two')
-    @task(4)
+    @tag("small", "two")
+    @task(3)
     def two_small_images(self):
-        self.client.headers.setdefault("Content-Type", "application/json")
-        body = {"google_cloud_urls": [*IMAGES["small"][0:1]]}
+        body = {"google_cloud_urls": [*IMAGES["small"][0:2]]}
         self.client.post("/", json=body)
 
-    @tag('big', 'two')
-    @task(4)
+    @tag("big", "two")
+    @task(3)
     def two_big_images(self):
-        self.client.headers.setdefault("Content-Type", "application/json")
-        body = {"google_cloud_urls": [*IMAGES["big"][0:1]]}
+        body = {"google_cloud_urls": [*IMAGES["big"][0:2]]}
         self.client.post("/", json=body)
 
-    @tag('small', 'three')
+    @tag("small", "three")
     @task(1)
     def three_small_images(self):
-        self.client.headers.setdefault("Content-Type", "application/json")
         body = {"google_cloud_urls": [*IMAGES["small"]]}
         self.client.post("/", json=body)
 
-    @tag('big', 'three')
+    @tag("big", "three")
     @task(1)
     def three_big_images(self):
-        self.client.headers.setdefault("Content-Type", "application/json")
         body = {"google_cloud_urls": [*IMAGES["big"]]}
         self.client.post("/", json=body)

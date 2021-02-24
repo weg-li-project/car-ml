@@ -1,17 +1,26 @@
 import unittest
 
-from util.transforms import to_json_suggestions, get_uniques, order_by_frequency, to_list
+from util.transforms import (
+    to_json_suggestions,
+    get_uniques,
+    order_by_frequency,
+    make_list,
+)
 
 
 class MyTestCase(unittest.TestCase):
     def test_to_json_suggestions_empty(self):
-        suggestions = '{"suggestions": {"license_plate_number": [], "make": [], "color": []}}'
+        suggestions = (
+            '{"suggestions": {"license_plate_number": [], "make": [], "color": []}}'
+        )
         json_suggestions: str = to_json_suggestions()
         self.assertEqual(json_suggestions, suggestions)
 
     def test_to_json_suggestions_with_data(self):
         suggestions = '{"suggestions": {"license_plate_number": ["HM VM 546"], "make": ["BMW"], "color": ["blue"]}}'
-        json_suggestions: str = to_json_suggestions(license_plate_numbers=["HM VM 546"], makes=["BMW"], colors=["blue"])
+        json_suggestions: str = to_json_suggestions(
+            license_plate_numbers=["HM VM 546"], makes=["BMW"], colors=["blue"]
+        )
         self.assertEqual(json_suggestions, suggestions)
 
     def test_get_uniques(self):
@@ -31,17 +40,13 @@ class MyTestCase(unittest.TestCase):
         self.assertListEqual(expected, actual)
 
     def test_to_list(self):
-        d = {
-            '0': [4, 5],
-            '@': [5, 8],
-            'p': [2, 0, 1]
-        }
+        d = {"0": [4, 5], "@": [5, 8], "p": [2, 0, 1]}
         expected = [4, 5, 5, 8, 2, 0, 1]
 
-        actual = to_list(d)
+        actual = make_list(d)
 
         self.assertListEqual(expected, actual)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

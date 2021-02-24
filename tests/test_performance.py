@@ -2,6 +2,8 @@ import os
 import unittest
 from csv import DictReader
 
+from pytest import mark
+
 from tests.skip_markers import needs_private_testdata
 from util.adapter import detect_car_attributes
 from util.paths import (
@@ -67,9 +69,6 @@ class TestPerformance(unittest.TestCase):
                         car_colors,
                     ) = detect_car_attributes(
                         [(filename, img)],
-                        cloud_vision_fallback_active=True
-                        if os.getenv("CLOUD_VISION_FALLBACK", "False").lower() == "true"
-                        else False,
                     )
 
                     if license_plate_number in license_plate_numbers:
