@@ -2,6 +2,7 @@ import os
 from typing import Final, List
 
 from flask import Flask, Request, request
+from google.cloud import storage, vision
 from werkzeug.exceptions import (
     BadRequest,
     MethodNotAllowed,
@@ -9,14 +10,14 @@ from werkzeug.exceptions import (
     UnsupportedMediaType,
 )
 
-from util import adapter
+from util.detection_adapter import DetectionAdapter
 from util.cloud_storage_client import CloudStorageClient
 from util.paths import checkpoints_path
 from util.transforms import to_json_suggestions
 from yolo_cnn.load import load_models
 
-if os.path.exists(checkpoints_path):
-    LOADED_MODELS: Final = load_models()
+#if os.path.exists(checkpoints_path):
+#    LOADED_MODELS: Final = load_models()
 PROP_NAME: Final = "google_cloud_urls"
 
 
@@ -57,8 +58,8 @@ app = Flask(__name__)
 
 @app.route("/", methods=["POST"])
 def index():
-    cs_client = CloudStorageClient()
-    detector = adapter
+    cs_client = CloudStorageClient(storage.Client())
+    detector = DetectionAdapter(vision.ImageAnnotatorClient())
     return get_suggestions(request, storage_client=cs_client, detector=detector)
 
 

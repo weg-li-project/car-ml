@@ -42,3 +42,4 @@ jobs:
         run: pytest ./tests/test_performance.py -s --no-cov
         env:
           CLOUD_VISION_FALLBACK: ${{ github.event.inputs.cloud_vision_fallback }}
+          PERFORMANCE_TEST: true

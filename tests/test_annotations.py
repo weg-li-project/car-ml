@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from google.cloud import vision
 import pytest
 
-from tests.skip_markers import needs_google_credentials, needs_private_testdata
+from tests.skip_markers import needs_private_testdata, needs_google_integration
 
 from util.annotation_provider import AnnotationProvider
 from util.cloud_storage_client import CloudStorageClient
@@ -37,10 +37,15 @@ class TestAnnotations:
         assert localized_object_annotations == []
         assert text_annotations == []
 
-    def test_get_image_from_gcs_uri(self):
+    def test_download_image(self):
         cs_client = CloudStorageClient(storage_client=storageClientMock)
         result = cs_client.download_image("")
         assert result == mock_image_bytes
+
+    def test_download_images(self):
+        cs_client = CloudStorageClient(storage_client=storageClientMock)
+        images_in_bytes = cs_client.download_images(["img1", "img2"])
+        assert images_in_bytes == [mock_image_bytes, mock_image_bytes]
 
     def test_create_vision_image_invalid_type(self):
         annotation_provider = AnnotationProvider(vision_client=visionClientMock)
@@ -65,19 +70,19 @@ class TestAnnotations:
         result = annotation_provider._create_vision_image(mock_image_bytes)
         assert result == vision.Image(content=mock_image_bytes)
 
-    @needs_google_credentials
+    @needs_google_integration
     def test_get_annotations_gs_uri(self):
-        annotation_provider = AnnotationProvider()
+        annotation_provider = AnnotationProvider(vision.ImageAnnotatorClient())
         gs_uri = "gs://weg-li_images/test/IMG_20191129_085112_size_big_car_one.jpg"
         (r1, r2) = annotation_provider.get_annotations(gs_uri)
         assert len(r1) > 0
         assert len(r2) > 0
 
-    @needs_google_credentials
+    @needs_google_integration
     @needs_private_testdata
     def test_get_annotations_bytes(self):
         filepath = charges_schroeder_path + "IMG_20191129_085112.jpg"
-        annotation_provider = AnnotationProvider()
+        annotation_provider = AnnotationProvider(vision.ImageAnnotatorClient())
         with open(filepath, "rb") as file:
             (r1, r2) = annotation_provider.get_annotations(bytes(file.read()))
             assert len(r1) > 0

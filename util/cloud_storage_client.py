@@ -7,10 +7,9 @@ BUCKET_NAME: Final = os.environ["WEGLI_IMAGES_BUCKET_NAME"]
 
 
 class CloudStorageClient:
-    """Client for Google Cloud Storage API.
-    """
+    """Client for Google Cloud Storage API."""
 
-    def __init__(self, storage_client=storage.Client(), bucket_name=BUCKET_NAME):
+    def __init__(self, storage_client, bucket_name=BUCKET_NAME):
         self.storage_client = storage_client
         self.bucket_name = bucket_name
 

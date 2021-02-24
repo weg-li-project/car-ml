@@ -6,10 +6,9 @@ from google.cloud.vision_v1 import AnnotateImageResponse
 
 
 class AnnotationProvider:
-    """Client for Google Cloud Vision API.
-    """
+    """Client for Google Cloud Vision API."""
 
-    def __init__(self, vision_client=vision.ImageAnnotatorClient()):
+    def __init__(self, vision_client):
         self.vision_client = vision_client
 
     def get_annotations(self, image: Union[bytes, str]):

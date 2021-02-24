@@ -2,10 +2,11 @@ import os
 import unittest
 from csv import DictReader
 
-from pytest import mark
+from google.cloud import vision
 
-from tests.skip_markers import needs_private_testdata
-from util.adapter import detect_car_attributes
+from tests.skip_markers import needs_private_testdata, needs_performance_flag
+from util.annotation_provider import AnnotationProvider
+from util.detection_adapter import DetectionAdapter
 from util.paths import (
     charges_csv_filepath,
     charges_schroeder_path,
@@ -39,6 +40,7 @@ def map_color(color):
 
 
 @needs_private_testdata
+@needs_performance_flag
 class TestPerformance(unittest.TestCase):
     def test_color_conversion(self):
         colors = ["silver", "yellow", "pink", "violet", "red", "blue"]
@@ -54,6 +56,9 @@ class TestPerformance(unittest.TestCase):
 
     def test_detection_performance(self):
         charges = read_charges()
+        detect = DetectionAdapter(
+            AnnotationProvider(vision.ImageAnnotatorClient())
+        ).detect_car_attributes
 
         correct_license_plate_numbers = 0
         correct_makes = 0
@@ -67,9 +72,7 @@ class TestPerformance(unittest.TestCase):
                         license_plate_numbers,
                         car_brands,
                         car_colors,
-                    ) = detect_car_attributes(
-                        [(filename, img)],
-                    )
+                    ) = detect([img], [filename])
 
                     if license_plate_number in license_plate_numbers:
                         correct_license_plate_numbers += 1
