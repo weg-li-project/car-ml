@@ -385,7 +385,7 @@ def analyze_box(image, pred_bboxes, cnn_alpr, cnn_car_rec, cnn_color_rec, info=F
                 plate_number = _recognize_lp_box(image, coords, cnn_alpr)
                 plate_numbers.append(plate_number)
 
-            elif case == 'CAR' and class_name == 'car' or class_name == 'truck':
+            elif case == 'CAR' and class_name == 'car' or class_name == 'truck' or class_name == 'bus':
 
                 # sort out boxes of wrong size to be a vehicle
                 xmin, ymin, xmax, ymax = coords[0], coords[1], coords[2], coords[3]
