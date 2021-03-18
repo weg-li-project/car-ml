@@ -2,7 +2,7 @@
 # https://hub.docker.com/_/python
 FROM python:3.8-slim
 
-RUN apt-get update && apt-get install \
+RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     wget
