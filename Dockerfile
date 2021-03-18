@@ -2,6 +2,11 @@
 # https://hub.docker.com/_/python
 FROM python:3.8-slim
 
+RUN apt-get update && apt-get install \
+    unzip \
+    curl \
+    wget
+
 ENV APP_HOME /app
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
