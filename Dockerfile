@@ -26,4 +26,4 @@ COPY . ./
 # Run the web service on container startup.
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
-CMD exec gunicorn --bind :8080 --workers 1 --threads 5 --log-level error --timeout 0 main:app
+CMD exec gunicorn --bind :8080 --workers 1 --threads 1 --log-level error --timeout 0 main:app
