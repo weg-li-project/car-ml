@@ -53,6 +53,7 @@ jobs:
         --platform=managed
         --cpu=4
         --memory=8G
+        --timeout=5m
         --set-env-vars=WEGLI_IMAGES_BUCKET_NAME=${{ secrets.WEGLI_IMAGES_BUCKET_NAME }}
 
   systemtest:
@@ -112,4 +113,5 @@ jobs:
         --platform=managed
         --cpu=4
         --memory=8G
+        --timeout=5m
         --set-env-vars=WEGLI_IMAGES_BUCKET_NAME=${{ secrets.WEGLI_IMAGES_BUCKET_NAME }}
