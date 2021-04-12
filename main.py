@@ -55,6 +55,9 @@ def get_suggestions(req: Request, storage_client, detector):
 
 app = Flask(__name__)
 
+@app.route("/ping", methods=["GET"])
+def ping():
+    return 'PONG'
 
 @app.route("/", methods=["POST"])
 def index():
